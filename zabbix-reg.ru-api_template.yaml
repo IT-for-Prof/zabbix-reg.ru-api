@@ -1,0 +1,81 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 5f217627e99b4149be5913cc7daf7f32
+      name: REG.RU
+  templates:
+    - uuid: 4c3d640823d3400090ddb7438fe75eb9
+      template: REG.RU
+      name: REG.RU
+      groups:
+        - name: REG.RU
+      items:
+        - uuid: 5d6681b939be4b218fe63efd9eed0528
+          name: rr-api-status
+          type: DEPENDENT
+          key: rr-api-status
+          delay: '0'
+          history: 1w
+          value_type: TEXT
+          trends: '0'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.result
+          master_item:
+            key: rr-api-user-get_blance
+          triggers:
+            - uuid: 46cbdc83356e41d4bc1dfd4575f84232
+              expression: 'last(/REG.RU/rr-api-status)<>"success" and last(/REG.RU/rr-api-status,#1)<>"success" and last(/REG.RU/rr-api-status,#2)<>"success" and last(/REG.RU/rr-api-status,#3)<>"success"'
+              name: rr-api-status
+              event_name: 'REG.RU API code not "SUCCESS"'
+              priority: HIGH
+        - uuid: cc9c00ee605841c3a27f248f0e86adf3
+          name: rr-api-user-get_balance
+          type: HTTP_AGENT
+          key: rr-api-user-get_blance
+          delay: 1h
+          history: 1d
+          value_type: TEXT
+          trends: '0'
+          timeout: 30s
+          url: 'https://api.reg.ru/api/regru2/user/get_balance'
+          posts: 'username={$RR_USERNAME}&password={$RR_PASSWORD}'
+          request_method: POST
+          triggers:
+            - uuid: 6d1feee62f6a4a8b94d0818b9aa30035
+              expression: 'nodata(/REG.RU/rr-api-user-get_blance,3h)=1'
+              name: 'Failed to fetch or no data'
+              priority: AVERAGE
+        - uuid: 645749518ed940dcbc9948a32aff24b5
+          name: rr-prepay
+          type: DEPENDENT
+          key: rr-prepay
+          delay: '0'
+          history: 1w
+          value_type: FLOAT
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.answer.prepay
+          master_item:
+            key: rr-api-user-get_blance
+          triggers:
+            - uuid: 52d615d108ee49b5969eb36bd69b3949
+              expression: 'last(/REG.RU/rr-prepay)<{$RR_BALANCE_MINIMAL}'
+              name: rr-balance-low
+              event_name: 'REG.RU баланс меньше {$RR_BALANCE_MINIMAL} RUR'
+              priority: HIGH
+      macros:
+        - macro: '{$RR_BALANCE_MINIMAL}'
+          value: '200'
+          description: 'Минимальный баланс для алерта'
+        - macro: '{$RR_OUTPUT_FORMAT}'
+          value: json
+          description: 'reg.ru api output format, defaults to JSON'
+        - macro: '{$RR_PASSWORD}'
+          type: SECRET_TEXT
+          description: 'reg.ru api password ( https://b2b.reg.ru/user/account/#/settings/api/ )'
+        - macro: '{$RR_USERNAME}'
+          value: user@mail.arpa
+          description: 'reg.ru account e-mail'
