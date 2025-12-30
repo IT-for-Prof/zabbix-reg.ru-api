@@ -154,6 +154,26 @@ zabbix_export:
         - macro: '{$RR_USERNAME}'
           value: user@mail.arpa
           description: 'reg.ru account e-mail'
+      tags:
+        - tag: scope
+          value: finance
+        - tag: service
+          value: reg.ru
+        - tag: vendor
+          value: reg.ru
+      graphs:
+        - uuid: d4e5f6a7b8c95071c3defbc245678901
+          name: 'REG.RU: Funds'
+          graph_items:
+            - color: 1A7C11
+              item:
+                host: REG.RU
+                key: rr-prepay
+            - sortorder: '1'
+              color: F63131
+              item:
+                host: REG.RU
+                key: rr-credit
       dashboards:
         - uuid: e5f6a7b8c9d06182d4defcd356789012
           name: 'REG.RU API Overview'
@@ -191,23 +211,3 @@ zabbix_export:
                       value:
                         host: REG.RU
                         name: 'REG.RU: Funds'
-      graphs:
-        - uuid: d4e5f6a7b8c95071c3defbc245678901
-          name: 'REG.RU: Funds'
-          graph_items:
-            - color: 1A7C11
-              item:
-                host: REG.RU
-                key: rr-prepay
-            - sortorder: '1'
-              color: F63131
-              item:
-                host: REG.RU
-                key: rr-credit
-      tags:
-        - tag: scope
-          value: finance
-        - tag: service
-          value: reg.ru
-        - tag: vendor
-          value: reg.ru
