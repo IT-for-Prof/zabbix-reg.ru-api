@@ -11,7 +11,7 @@ zabbix_export:
       description: 'Template for monitoring REG.RU API balance and status. itforprof.com by Konstantin Tyutyunnik'
       vendor:
         name: reg.ru
-        version: 1.1.0
+        version: 1.1.2
       groups:
         - name: REG.RU
       items:
@@ -27,6 +27,8 @@ zabbix_export:
             - type: JSONPATH
               parameters:
                 - $.result
+              error_handler: CUSTOM_VALUE
+              error_handler_params: unknown
             - type: DISCARD_UNCHANGED_HEARTBEAT
               parameters:
                 - 6h
@@ -79,6 +81,7 @@ zabbix_export:
           history: 1d
           value_type: TEXT
           trends: '0'
+          status_codes: '200,400,401,403,404,500'
           timeout: 30s
           url: 'https://api.reg.ru/api/regru2/user/get_balance'
           posts: 'username={$RR_USERNAME}&password={$RR_PASSWORD}'
@@ -102,6 +105,7 @@ zabbix_export:
             - type: JSONPATH
               parameters:
                 - $.answer.prepay
+              error_handler: DISCARD_VALUE
           master_item:
             key: rr-api-user-get_balance
           tags:
@@ -113,7 +117,7 @@ zabbix_export:
               name: 'REG.RU: Low balance'
               event_name: 'REG.RU: Низкий баланс: {ITEM.VALUE} {?last(/REG.RU/rr-currency)} (минимум {$RR_BALANCE_MINIMAL})'
               priority: HIGH
-        - uuid: b4d681b939be4b218fe63efd9eed0529
+        - uuid: cbbb6e7c3d6d4a22ba2c2c5ed763ac8b
           name: rr-credit
           type: DEPENDENT
           key: rr-credit
@@ -124,12 +128,13 @@ zabbix_export:
             - type: JSONPATH
               parameters:
                 - $.answer.credit
+              error_handler: DISCARD_VALUE
           master_item:
             key: rr-api-user-get_balance
           tags:
             - tag: scope
               value: finance
-        - uuid: c3d4e5f6a7b84960b2cdefb134567890
+        - uuid: 4b9c8434176148d3956690b39d75a37d
           name: rr-currency
           type: DEPENDENT
           key: rr-currency
@@ -140,6 +145,7 @@ zabbix_export:
             - type: JSONPATH
               parameters:
                 - $.answer.currency
+              error_handler: DISCARD_VALUE
           master_item:
             key: rr-api-user-get_balance
           tags:
@@ -159,7 +165,7 @@ zabbix_export:
           value: user@mail.arpa
           description: 'reg.ru account e-mail'
       dashboards:
-        - uuid: 4c3d640823d3400090ddb7438fe75eb9
+        - uuid: a6258dacfb694080bb8d41b5ca1540dd
           name: 'REG.RU API Overview'
           pages:
             - widgets:
@@ -203,7 +209,7 @@ zabbix_export:
         - tag: vendor
           value: reg.ru
   graphs:
-    - uuid: cc9c00ee605841c3a27f248f0e86adf3
+    - uuid: b27c0239285944fd8e12f92b2d69389a
       name: 'REG.RU: Funds'
       graph_items:
         - color: 1A7C11
