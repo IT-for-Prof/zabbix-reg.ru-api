@@ -1,3 +1,4 @@
+# itforprof.com by Konstantin Tyutyunnik
 zabbix_export:
   version: '7.0'
   template_groups:
@@ -26,10 +27,25 @@ zabbix_export:
             key: rr-api-user-get_blance
           triggers:
             - uuid: 46cbdc83356e41d4bc1dfd4575f84232
-              expression: 'last(/REG.RU/rr-api-status)<>"success" and last(/REG.RU/rr-api-status,#1)<>"success" and last(/REG.RU/rr-api-status,#2)<>"success" and last(/REG.RU/rr-api-status,#3)<>"success"'
-              name: rr-api-status
-              event_name: 'REG.RU API code not "SUCCESS"'
+              expression: 'last(/REG.RU/rr-api-status)<>"success" and last(/REG.RU/rr-api-status,#1)<>"success" and last(/REG.RU/rr-api-status,#2) <>"success" and last(/REG.RU/rr-api-status,#3)<>"success"'
+              name: 'rr-api-status: {?last(/REG.RU/rr-api-error-text)}'
+              event_name: 'REG.RU API error: {?last(/REG.RU/rr-api-error-text)}'
               priority: HIGH
+        - uuid: b4d681b939be4b218fe63efd9eed0529
+          name: rr-api-error-text
+          type: DEPENDENT
+          key: rr-api-error-text
+          delay: '0'
+          history: 1w
+          value_type: TEXT
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.error_text
+              error_handler: CUSTOM_VALUE
+              error_handler_params: ''
+          master_item:
+            key: rr-api-user-get_blance
         - uuid: cc9c00ee605841c3a27f248f0e86adf3
           name: rr-api-user-get_balance
           type: HTTP_AGENT
