@@ -2,16 +2,20 @@
 zabbix_export:
   version: '7.0'
   template_groups:
-    - uuid: 5f217627e99b4149be5913cc7daf7f32
+    - uuid: 5374d67e5e9a4c809a578b6629e33233
       name: REG.RU
   templates:
-    - uuid: 4c3d640823d3400090ddb7438fe75eb9
+    - uuid: 7480bcc549af46da9917df244cd75b5f
       template: REG.RU
       name: REG.RU
+      description: 'Template for monitoring REG.RU API balance and status. itforprof.com by Konstantin Tyutyunnik'
+      vendor:
+        name: reg.ru
+        version: 1.1.0
       groups:
         - name: REG.RU
       items:
-        - uuid: 5d6681b939be4b218fe63efd9eed0528
+        - uuid: d1ee1ea7fa794d19b470f057904acff6
           name: rr-api-status
           type: DEPENDENT
           key: rr-api-status
@@ -32,12 +36,12 @@ zabbix_export:
             - tag: scope
               value: availability
           triggers:
-            - uuid: 46cbdc83356e41d4bc1dfd4575f84232
+            - uuid: 907793349e7e4a6785698a4fd38c418b
               expression: 'last(/REG.RU/rr-api-status)<>"success" and last(/REG.RU/rr-api-status,#1)<>"success" and last(/REG.RU/rr-api-status,#2) <>"success" and last(/REG.RU/rr-api-status,#3)<>"success"'
               name: 'rr-api-status: {?last(/REG.RU/rr-api-error-text)}'
               event_name: 'REG.RU API error: {?last(/REG.RU/rr-api-error-text)}'
               priority: HIGH
-        - uuid: b4d681b939be4b218fe63efd9eed0529
+        - uuid: d28e92570e86477f835c847e8853cc17
           name: rr-api-error-text
           type: DEPENDENT
           key: rr-api-error-text
@@ -52,7 +56,7 @@ zabbix_export:
               error_handler_params: ''
           master_item:
             key: rr-api-user-get_balance
-        - uuid: c3d4e5f6a7b84960b2cdefb134567890
+        - uuid: 891a39dd30b94e02a487b3c40e2ac3a4
           name: rr-api-error-code
           type: DEPENDENT
           key: rr-api-error-code
@@ -67,7 +71,7 @@ zabbix_export:
               error_handler_params: ''
           master_item:
             key: rr-api-user-get_balance
-        - uuid: cc9c00ee605841c3a27f248f0e86adf3
+        - uuid: bfd896e5bbcc43ffa819dca4971e6d94
           name: rr-api-user-get_balance
           type: HTTP_AGENT
           key: rr-api-user-get_balance
@@ -83,11 +87,11 @@ zabbix_export:
             - tag: scope
               value: raw
           triggers:
-            - uuid: 6d1feee62f6a4a8b94d0818b9aa30035
+            - uuid: cf13b2361d904f64859914177ef6ff89
               expression: 'nodata(/REG.RU/rr-api-user-get_balance,3h)=1'
               name: 'Failed to fetch or no data'
               priority: AVERAGE
-        - uuid: 645749518ed940dcbc9948a32aff24b5
+        - uuid: 3f5791dcb89d4432bb97474ce041228f
           name: rr-prepay
           type: DEPENDENT
           key: rr-prepay
@@ -104,12 +108,12 @@ zabbix_export:
             - tag: scope
               value: finance
           triggers:
-            - uuid: 52d615d108ee49b5969eb36bd69b3949
+            - uuid: 59c4377debed45ceab7455267203f0b7
               expression: 'last(/REG.RU/rr-prepay)<{$RR_BALANCE_MINIMAL}'
               name: 'REG.RU: Low balance'
               event_name: 'REG.RU: Низкий баланс: {ITEM.VALUE} {?last(/REG.RU/rr-currency)} (минимум {$RR_BALANCE_MINIMAL})'
               priority: HIGH
-        - uuid: a1b2c3d4e5f6475890abcdef12345678
+        - uuid: b4d681b939be4b218fe63efd9eed0529
           name: rr-credit
           type: DEPENDENT
           key: rr-credit
@@ -125,7 +129,7 @@ zabbix_export:
           tags:
             - tag: scope
               value: finance
-        - uuid: b2c3d4e5f6a74859a1bcdeaf23456789
+        - uuid: c3d4e5f6a7b84960b2cdefb134567890
           name: rr-currency
           type: DEPENDENT
           key: rr-currency
@@ -154,28 +158,8 @@ zabbix_export:
         - macro: '{$RR_USERNAME}'
           value: user@mail.arpa
           description: 'reg.ru account e-mail'
-      tags:
-        - tag: scope
-          value: finance
-        - tag: service
-          value: reg.ru
-        - tag: vendor
-          value: reg.ru
-      graphs:
-        - uuid: d4e5f6a7b8c95071c3defbc245678901
-          name: 'REG.RU: Funds'
-          graph_items:
-            - color: 1A7C11
-              item:
-                host: REG.RU
-                key: rr-prepay
-            - sortorder: '1'
-              color: F63131
-              item:
-                host: REG.RU
-                key: rr-credit
       dashboards:
-        - uuid: e5f6a7b8c9d06182d4defcd356789012
+        - uuid: 4c3d640823d3400090ddb7438fe75eb9
           name: 'REG.RU API Overview'
           pages:
             - widgets:
@@ -211,3 +195,23 @@ zabbix_export:
                       value:
                         host: REG.RU
                         name: 'REG.RU: Funds'
+      tags:
+        - tag: scope
+          value: finance
+        - tag: service
+          value: reg.ru
+        - tag: vendor
+          value: reg.ru
+  graphs:
+    - uuid: cc9c00ee605841c3a27f248f0e86adf3
+      name: 'REG.RU: Funds'
+      graph_items:
+        - color: 1A7C11
+          item:
+            host: REG.RU
+            key: rr-prepay
+        - sortorder: '1'
+          color: F63131
+          item:
+            host: REG.RU
+            key: rr-credit
