@@ -11,7 +11,7 @@ zabbix_export:
       description: 'Template for monitoring REG.RU API balance and status. itforprof.com by Konstantin Tyutyunnik'
       vendor:
         name: reg.ru
-        version: 1.1.2
+        version: 1.1.3
       groups:
         - name: REG.RU
       items:
@@ -39,9 +39,9 @@ zabbix_export:
               value: availability
           triggers:
             - uuid: 907793349e7e4a6785698a4fd38c418b
-              expression: 'last(/REG.RU/rr-api-status)<>"success" and last(/REG.RU/rr-api-status,#1)<>"success" and last(/REG.RU/rr-api-status,#2) <>"success" and last(/REG.RU/rr-api-status,#3)<>"success"'
-              name: 'rr-api-status: {?last(/REG.RU/rr-api-error-text)}'
-              event_name: 'REG.RU API error: {?last(/REG.RU/rr-api-error-text)}'
+              expression: 'last(/REG.RU/rr-api-status)<>"success" and last(/REG.RU/rr-api-status,#2)<>"success" and last(/REG.RU/rr-api-status,#3)<>"success" and last(/REG.RU/rr-api-status,#4)<>"success" and length(last(/REG.RU/rr-api-error-text))>=0'
+              name: 'rr-api-status: {ITEM.VALUE5}'
+              event_name: 'REG.RU API error: {ITEM.VALUE5}'
               priority: HIGH
         - uuid: d28e92570e86477f835c847e8853cc17
           name: rr-api-error-text
@@ -113,9 +113,9 @@ zabbix_export:
               value: finance
           triggers:
             - uuid: 59c4377debed45ceab7455267203f0b7
-              expression: 'last(/REG.RU/rr-prepay)<{$RR_BALANCE_MINIMAL}'
+              expression: 'last(/REG.RU/rr-prepay)<{$RR_BALANCE_MINIMAL} and length(last(/REG.RU/rr-currency))>=0'
               name: 'REG.RU: Low balance'
-              event_name: 'REG.RU: Низкий баланс: {ITEM.VALUE} {?last(/REG.RU/rr-currency)} (минимум {$RR_BALANCE_MINIMAL})'
+              event_name: 'REG.RU: Низкий баланс: {ITEM.VALUE1} {ITEM.VALUE2} (минимум {$RR_BALANCE_MINIMAL})'
               priority: HIGH
         - uuid: cbbb6e7c3d6d4a22ba2c2c5ed763ac8b
           name: rr-credit
