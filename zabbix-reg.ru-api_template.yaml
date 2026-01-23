@@ -236,3 +236,22 @@ zabbix_export:
           item:
             host: REG.RU
             key: rr-credit
+  valuemaps:
+    - uuid: a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4
+      name: 'REG.RU Service State'
+      mappings:
+        - value: A
+          newvalue: Active
+        - value: D
+          newvalue: Deleted
+        - value: S
+          newvalue: Suspended
+        - value: W
+          newvalue: Waiting
+    - uuid: b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5
+      name: 'REG.RU Autorenew'
+      mappings:
+        - value: 'on'
+          newvalue: Enabled
+        - value: 'off'
+          newvalue: Disabled
