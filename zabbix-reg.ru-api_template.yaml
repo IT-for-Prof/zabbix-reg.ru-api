@@ -11,7 +11,7 @@ zabbix_export:
       description: 'Template for monitoring REG.RU API: services expiration, balance, unpaid bills. Auto-discovery of all service types. itforprof.com by Konstantin Tyutyunnik'
       vendor:
         name: itforprof.com
-        version: 2.1.0
+        version: 2.1.1
       groups:
         - name: REG.RU
       items:
@@ -168,9 +168,9 @@ zabbix_export:
               value: availability
           triggers:
             - uuid: 907793349e7e4a6785698a4fd38c418b
-              expression: 'last(/REG.RU/rr-api-status)<>"success" and last(/REG.RU/rr-api-status,#2)<>"success" and last(/REG.RU/rr-api-status,#3)<>"success" and last(/REG.RU/rr-api-status,#4)<>"success" and length(last(/REG.RU/rr-api-error-text))>=0'
+              expression: 'last(/REG.RU/rr-api-status)<>"success" and last(/REG.RU/rr-api-status,#2)<>"success" and last(/REG.RU/rr-api-status,#3)<>"success" and last(/REG.RU/rr-api-status,#4)<>"success" and (last(/REG.RU/rr-api-error-text)="" or last(/REG.RU/rr-api-error-text)<>"")'
               name: 'REG.RU: API error (4 consecutive failures)'
-              event_name: 'REG.RU API ошибка: {ITEM.VALUE5}'
+              event_name: 'REG.RU API: {ITEM.VALUE5}'
               priority: HIGH
               description: 'API REG.RU возвращает ошибки 4 раза подряд. Текст ошибки показан в event_name.'
         - uuid: d28e92570e86477f835c847e8853cc17
