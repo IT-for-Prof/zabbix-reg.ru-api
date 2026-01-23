@@ -509,6 +509,14 @@ zabbix_export:
               tags:
                 - tag: scope
                   value: autorenew
+          graph_prototypes:
+            - uuid: h8h8h8h8h8h8h8h8h8h8h8h8h8h8h8h8
+              name: 'Service [{#SERVICE_NAME}]: Days until expiration'
+              graph_items:
+                - color: 1A7C11
+                  item:
+                    host: REG.RU
+                    key: 'rr.service.days_left[{#SERVICE_ID}]'
       macros:
         - macro: '{$RR_BALANCE_MINIMAL}'
           value: '200'
