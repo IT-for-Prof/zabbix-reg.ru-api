@@ -12,7 +12,7 @@
 | Шаблон | Версия | API | Назначение |
 |--------|--------|-----|------------|
 | **REG.RU** | 2.1.2 | api.reg.ru | Услуги REG.RU (домены, SSL, хостинг и др.) |
-| **REG.RU CLOUD** | 1.2.0 | api.cloudvps.reg.ru | CloudVPS серверы, баланс, снапшоты |
+| **REG.RU CLOUD** | 1.3.0 | api.cloudvps.reg.ru | CloudVPS серверы, баланс, снапшоты |
 
 > **Важно:** Шаблоны используют разные API с разной аутентификацией. Если у вас есть и услуги REG.RU, и CloudVPS — подключайте оба шаблона.
 
@@ -147,7 +147,7 @@ API токен получается в [панели CloudVPS](https://cloudvps.
 
 | Discovery | Item Prototypes | Trigger Prototypes |
 |-----------|-----------------|-------------------|
-| VPS Discovery | 11 (status, vcpus, memory, disk, ip, region, prices, backups, image, created) | 3 (not active, backups disabled, backups not configured) |
+| VPS Discovery | 17 (status, vcpus, memory, disk, ip, ipv6, region, prices, backups, image, created, is_blocked, locked, blocks, hostname, last_backup) | 7 |
 | Snapshots Discovery | 2 (size, created) | — |
 | VPC Discovery | 1 (region) | — |
 
@@ -162,13 +162,17 @@ API токен получается в [панели CloudVPS](https://cloudvps.
 | **VPS** | 2 | WARNING, INFO |
 | **Snapshots** | 2 | WARNING |
 
-### Trigger Prototypes (3)
+### Trigger Prototypes (7)
 
 | Trigger | Severity | Описание |
 |---------|----------|----------|
-| VPS [{#REGLET_NAME}]: Not active | HIGH | VPS не активен |
-| VPS [{#REGLET_NAME}]: Backups were disabled | WARNING | Бэкапы были отключены (change detection) |
-| VPS [{#REGLET_NAME}]: Backups not configured | INFO | Бэкапы не настроены изначально |
+| VPS: Not active | HIGH | VPS не активен |
+| VPS: BLOCKED by provider | HIGH | VPS заблокирован провайдером |
+| VPS: IP address changed | HIGH | IP изменился (change detection) |
+| VPS: Backups were disabled | WARNING | Бэкапы были отключены (change detection) |
+| VPS: Locked | WARNING | VPS залочен (миграция/обслуживание) |
+| VPS: Backups not configured | INFO | Бэкапы не настроены изначально |
+| VPS: Has active blocks | INFO | Есть блокировки (block_smtp и др.) |
 
 ### Dashboard (2 страницы)
 
@@ -204,6 +208,11 @@ API токен получается в [панели CloudVPS](https://cloudvps.
 ## Changelog
 
 ### REG.RU CLOUD
+
+**1.3.0** (2026-01-23)
+- feat: Добавлены новые item prototypes: `is_blocked`, `locked`, `blocks`, `ipv6`, `hostname`, `last_backup_date`
+- feat: Новые триггеры: BLOCKED by provider (HIGH), IP changed (HIGH), Locked (WARNING), Has active blocks (INFO)
+- Теперь 17 item prototypes и 7 trigger prototypes для VPS
 
 **1.2.0** (2026-01-23)
 - fix: Исправлены JSONPath пути для VPS данных (`ip`, `region_slug`, `size.price`, `size.price_month`)

@@ -12,7 +12,7 @@ zabbix_export:
       description: 'Template for monitoring REG.RU CloudVPS: balance, VPS servers, snapshots, IPs, VPCs. Auto-discovery of all resources. API v1. itforprof.com by Konstantin Tyutyunnik'
       vendor:
         name: itforprof.com
-        version: 1.2.0
+        version: 1.3.0
       groups:
         - name: REG.RU
       items:
@@ -1064,6 +1064,157 @@ zabbix_export:
                   value: '{#REGLET_NAME}'
                 - tag: scope
                   value: info
+            - uuid: 7be1834d337645f182a26f5e199473fb
+              name: 'VPS [{#REGLET_NAME}]: Is Blocked'
+              type: DEPENDENT
+              key: 'rrc.reglet.is_blocked[{#REGLET_ID}]'
+              delay: '0'
+              history: 7d
+              value_type: UNSIGNED
+              description: 'VPS заблокирован провайдером (1=да, 0=нет)'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.reglets[?(@.id=={#REGLET_ID})].is_blocked.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '0'
+              master_item:
+                key: rrc-api-reglets
+              valuemap:
+                name: 'Boolean Yes/No'
+              tags:
+                - tag: component
+                  value: reglet
+                - tag: reglet
+                  value: '{#REGLET_NAME}'
+                - tag: scope
+                  value: security
+            - uuid: e5a487a65d804da7b6f7cead7148aac1
+              name: 'VPS [{#REGLET_NAME}]: Locked'
+              type: DEPENDENT
+              key: 'rrc.reglet.locked[{#REGLET_ID}]'
+              delay: '0'
+              history: 7d
+              value_type: UNSIGNED
+              description: 'VPS залочен (например, при миграции)'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.reglets[?(@.id=={#REGLET_ID})].locked.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '0'
+              master_item:
+                key: rrc-api-reglets
+              valuemap:
+                name: 'Boolean Yes/No'
+              tags:
+                - tag: component
+                  value: reglet
+                - tag: reglet
+                  value: '{#REGLET_NAME}'
+                - tag: scope
+                  value: status
+            - uuid: 44396c5acf224cf8be2ddaa8274e39ad
+              name: 'VPS [{#REGLET_NAME}]: Blocks'
+              type: DEPENDENT
+              key: 'rrc.reglet.blocks[{#REGLET_ID}]'
+              delay: '0'
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+              description: 'Список активных блокировок (block_smtp и др.)'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.reglets[?(@.id=={#REGLET_ID})].blocks.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '[]'
+                - type: JAVASCRIPT
+                  parameters:
+                    - |
+                      var blocks = JSON.parse(value);
+                      return Array.isArray(blocks) ? blocks.join(', ') : '';
+              master_item:
+                key: rrc-api-reglets
+              tags:
+                - tag: component
+                  value: reglet
+                - tag: reglet
+                  value: '{#REGLET_NAME}'
+                - tag: scope
+                  value: security
+            - uuid: 81658294164f43aa918caff9d7da24ae
+              name: 'VPS [{#REGLET_NAME}]: IPv6 Address'
+              type: DEPENDENT
+              key: 'rrc.reglet.ipv6[{#REGLET_ID}]'
+              delay: '0'
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+              description: 'IPv6 адрес VPS'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.reglets[?(@.id=={#REGLET_ID})].ipv6.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: ''
+              master_item:
+                key: rrc-api-reglets
+              tags:
+                - tag: component
+                  value: reglet
+                - tag: reglet
+                  value: '{#REGLET_NAME}'
+                - tag: scope
+                  value: network
+            - uuid: e7268eb1f644414ab3f2962005a6aa8f
+              name: 'VPS [{#REGLET_NAME}]: Hostname'
+              type: DEPENDENT
+              key: 'rrc.reglet.hostname[{#REGLET_ID}]'
+              delay: '0'
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+              description: 'Hostname VPS'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.reglets[?(@.id=={#REGLET_ID})].hostname.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: ''
+              master_item:
+                key: rrc-api-reglets
+              tags:
+                - tag: component
+                  value: reglet
+                - tag: reglet
+                  value: '{#REGLET_NAME}'
+                - tag: scope
+                  value: network
+            - uuid: 25be17a0a9ac44a5bacc4d070094b42e
+              name: 'VPS [{#REGLET_NAME}]: Last Backup Date'
+              type: DEPENDENT
+              key: 'rrc.reglet.last_backup[{#REGLET_ID}]'
+              delay: '0'
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+              description: 'Дата последнего бэкапа'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.reglets[?(@.id=={#REGLET_ID})].last_backup_date.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: ''
+              master_item:
+                key: rrc-api-reglets
+              tags:
+                - tag: component
+                  value: reglet
+                - tag: reglet
+                  value: '{#REGLET_NAME}'
+                - tag: scope
+                  value: backup
           trigger_prototypes:
             - uuid: 48be087a59c94ec3a3db0b8208be64f2
               expression: 'last(/REG.RU CLOUD/rrc.reglet.status[{#REGLET_ID}])<>"active" and last(/REG.RU CLOUD/rrc.reglet.status[{#REGLET_ID}])<>"new"'
@@ -1094,6 +1245,45 @@ zabbix_export:
               tags:
                 - tag: scope
                   value: backup
+            - uuid: 5cc1bfcce1d24a408d94eee39804c5fe
+              expression: 'last(/REG.RU CLOUD/rrc.reglet.is_blocked[{#REGLET_ID}])=1'
+              name: 'VPS [{#REGLET_NAME}]: BLOCKED by provider'
+              event_name: 'VPS {#REGLET_NAME} ({#REGLET_IP}): ЗАБЛОКИРОВАН провайдером!'
+              priority: HIGH
+              description: 'VPS {#REGLET_NAME} заблокирован провайдером. Проверьте причину в панели управления.'
+              tags:
+                - tag: scope
+                  value: security
+            - uuid: e7c7aab4e5b843fcb37093b5695d7994
+              expression: 'last(/REG.RU CLOUD/rrc.reglet.locked[{#REGLET_ID}])=1'
+              name: 'VPS [{#REGLET_NAME}]: Locked'
+              event_name: 'VPS {#REGLET_NAME}: Залочен (миграция или обслуживание)'
+              priority: WARNING
+              description: 'VPS {#REGLET_NAME} залочен. Возможно идёт миграция или техническое обслуживание.'
+              manual_close: 'YES'
+              tags:
+                - tag: scope
+                  value: status
+            - uuid: e3d4526ec414406ab9ac409bc0e32309
+              expression: 'change(/REG.RU CLOUD/rrc.reglet.ip[{#REGLET_ID}])=1 and length(last(/REG.RU CLOUD/rrc.reglet.ip[{#REGLET_ID}]))>0'
+              name: 'VPS [{#REGLET_NAME}]: IP address changed'
+              event_name: 'VPS {#REGLET_NAME}: IP изменился на {ITEM.LASTVALUE}'
+              priority: HIGH
+              description: 'IP адрес VPS {#REGLET_NAME} изменился. Проверьте DNS записи и firewall правила.'
+              manual_close: 'YES'
+              tags:
+                - tag: scope
+                  value: network
+            - uuid: 206ff02af03a4e048ba5e76b223bb65a
+              expression: 'length(last(/REG.RU CLOUD/rrc.reglet.blocks[{#REGLET_ID}]))>0'
+              name: 'VPS [{#REGLET_NAME}]: Has active blocks'
+              event_name: 'VPS {#REGLET_NAME}: Активны блокировки: {ITEM.LASTVALUE}'
+              priority: INFO
+              description: 'На VPS {#REGLET_NAME} активны блокировки (например, block_smtp). Это может влиять на функциональность.'
+              manual_close: 'YES'
+              tags:
+                - tag: scope
+                  value: security
           graph_prototypes:
             - uuid: 8105d4c30b78481b89b1430030f5f749
               name: 'VPS [{#REGLET_NAME}]: Resources'
