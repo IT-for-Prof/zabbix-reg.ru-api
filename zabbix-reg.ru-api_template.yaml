@@ -269,6 +269,52 @@ zabbix_export:
           tags:
             - tag: scope
               value: finance
+      discovery_rules:
+        - uuid: e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5
+          name: 'REG.RU: Services Discovery'
+          type: DEPENDENT
+          key: rr.discovery.services
+          delay: '0'
+          lifetime: 7d
+          description: 'Автообнаружение всех услуг REG.RU (домены, хостинг, VPS, SSL и др.)'
+          master_item:
+            key: rr.api.services.list
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.answer.services'
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '[]'
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var services = JSON.parse(value);
+                  var lld = [];
+                  for (var i = 0; i < services.length; i++) {
+                    var s = services[i];
+                    lld.push({
+                      "{#SERVICE_ID}": String(s.service_id || ""),
+                      "{#SERVICE_TYPE}": String(s.servtype || "unknown"),
+                      "{#SERVICE_NAME}": String(s.dname || s.subtype || s.service_id || ""),
+                      "{#EXPIRE_DATE}": String(s.expiration_date || ""),
+                      "{#AUTORENEW}": String(s.autorenew_flag || s.autorenew || "off"),
+                      "{#STATE}": String(s.state || "")
+                    });
+                  }
+                  return JSON.stringify(lld);
+          lld_macro_paths:
+            - lld_macro: '{#SERVICE_ID}'
+              path: '$.["{#SERVICE_ID}"]'
+            - lld_macro: '{#SERVICE_TYPE}'
+              path: '$.["{#SERVICE_TYPE}"]'
+            - lld_macro: '{#SERVICE_NAME}'
+              path: '$.["{#SERVICE_NAME}"]'
+            - lld_macro: '{#EXPIRE_DATE}'
+              path: '$.["{#EXPIRE_DATE}"]'
+            - lld_macro: '{#AUTORENEW}'
+              path: '$.["{#AUTORENEW}"]'
+            - lld_macro: '{#STATE}'
+              path: '$.["{#STATE}"]'
       macros:
         - macro: '{$RR_BALANCE_MINIMAL}'
           value: '200'
