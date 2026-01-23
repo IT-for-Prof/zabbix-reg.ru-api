@@ -162,17 +162,18 @@ API токен получается в [панели CloudVPS](https://cloudvps.
 | **VPS** | 2 | WARNING, INFO |
 | **Snapshots** | 2 | WARNING |
 
-### Trigger Prototypes (7)
+### Trigger Prototypes (8)
 
 | Trigger | Severity | Описание |
 |---------|----------|----------|
 | VPS: Not active | HIGH | VPS не активен |
-| VPS: BLOCKED by provider | HIGH | VPS заблокирован провайдером |
+| VPS: SUSPENDED (insufficient funds) | HIGH | VPS приостановлен из-за недостатка средств |
 | VPS: IP address changed | HIGH | IP изменился (change detection) |
 | VPS: Backups were disabled | WARNING | Бэкапы были отключены (change detection) |
 | VPS: Locked | WARNING | VPS залочен (миграция/обслуживание) |
 | VPS: Backups not configured | INFO | Бэкапы не настроены изначально |
 | VPS: Has active blocks | INFO | Есть блокировки (block_smtp и др.) |
+| VPS: Has network restrictions | INFO | Есть сетевые ограничения (is_blocked=1, обычно SMTP) |
 
 ### Dashboard (2 страницы)
 
@@ -208,6 +209,12 @@ API токен получается в [панели CloudVPS](https://cloudvps.
 ## Changelog
 
 ### REG.RU CLOUD
+
+**1.4.0** (2026-01-24)
+- fix: Исправлена логика триггера блокировки VPS
+  - `BLOCKED by provider` (HIGH) → `SUSPENDED (insufficient funds)` — теперь срабатывает на `status="suspended"` (реальная проблема с оплатой)
+  - Добавлен `Has network restrictions` (INFO) — информирует о `is_blocked=1` (обычно SMTP блокировка портов 25/465)
+- Теперь 17 item prototypes и 8 trigger prototypes для VPS
 
 **1.3.0** (2026-01-23)
 - feat: Добавлены новые item prototypes: `is_blocked`, `locked`, `blocks`, `ipv6`, `hostname`, `last_backup_date`
