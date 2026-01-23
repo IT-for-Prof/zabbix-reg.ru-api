@@ -1,0 +1,1616 @@
+# REG.RU CloudVPS Monitoring Template
+# itforprof.com by Konstantin Tyutyunnik
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 5374d67e5e9a4c809a578b6629e33233
+      name: REG.RU
+  templates:
+    - uuid: 78e03b0892244620907d1200d08daa13
+      template: 'REG.RU CLOUD'
+      name: 'REG.RU CLOUD'
+      description: 'Template for monitoring REG.RU CloudVPS: balance, VPS servers, snapshots, IPs, VPCs. Auto-discovery of all resources. API v1. itforprof.com by Konstantin Tyutyunnik'
+      vendor:
+        name: itforprof.com
+        version: 1.0.0
+      groups:
+        - name: REG.RU
+      items:
+        # ============================================
+        # MASTER ITEMS (HTTP AGENTS)
+        # ============================================
+        - uuid: 9c721da5b4de4ee7b522ab43a38a3e2e
+          name: 'RRC: API Balance Data Raw'
+          type: HTTP_AGENT
+          key: rrc-api-balance-data
+          delay: '{$RRC_UPDATE_INTERVAL}'
+          history: 1d
+          value_type: TEXT
+          trends: '0'
+          status_codes: '200,400,401,403,404,500,502,503'
+          timeout: '{$RRC_API_TIMEOUT}'
+          url: 'https://api.cloudvps.reg.ru/v1/balance_data'
+          headers:
+            - name: Authorization
+              value: 'Bearer {$RRC_API_KEY}'
+            - name: Accept
+              value: application/json
+          description: 'Raw JSON from /v1/balance_data endpoint'
+          tags:
+            - tag: component
+              value: api
+            - tag: scope
+              value: raw
+          triggers:
+            - uuid: 42dbb2f4d7494780b48e21665c531946
+              expression: 'nodata(/REG.RU CLOUD/rrc-api-balance-data,3h)=1'
+              name: 'RRC: No data from balance API'
+              event_name: 'REG.RU CLOUD: Нет данных от API balance_data более 3 часов'
+              priority: AVERAGE
+              description: 'API balance_data не отвечает или нет данных'
+        - uuid: a7583f15685f49a3b125ea3301e3ed51
+          name: 'RRC: API Reglets Raw'
+          type: HTTP_AGENT
+          key: rrc-api-reglets
+          delay: '{$RRC_UPDATE_INTERVAL_REGLETS}'
+          history: 1d
+          value_type: TEXT
+          trends: '0'
+          status_codes: '200,400,401,403,404,500,502,503'
+          timeout: '{$RRC_API_TIMEOUT}'
+          url: 'https://api.cloudvps.reg.ru/v1/reglets'
+          headers:
+            - name: Authorization
+              value: 'Bearer {$RRC_API_KEY}'
+            - name: Accept
+              value: application/json
+          description: 'Raw JSON from /v1/reglets endpoint - list of all VPS servers'
+          tags:
+            - tag: component
+              value: api
+            - tag: scope
+              value: raw
+          triggers:
+            - uuid: b6401e9582cb45de873d39a3aeb7a58c
+              expression: 'nodata(/REG.RU CLOUD/rrc-api-reglets,3h)=1'
+              name: 'RRC: No data from reglets API'
+              event_name: 'REG.RU CLOUD: Нет данных от API reglets более 3 часов'
+              priority: AVERAGE
+              description: 'API reglets не отвечает или нет данных'
+        - uuid: 678b644b369c472c82d3e41406067b86
+          name: 'RRC: API Snapshots Raw'
+          type: HTTP_AGENT
+          key: rrc-api-snapshots
+          delay: '{$RRC_UPDATE_INTERVAL}'
+          history: 1d
+          value_type: TEXT
+          trends: '0'
+          status_codes: '200,400,401,403,404,500,502,503'
+          timeout: '{$RRC_API_TIMEOUT}'
+          url: 'https://api.cloudvps.reg.ru/v1/snapshots'
+          headers:
+            - name: Authorization
+              value: 'Bearer {$RRC_API_KEY}'
+            - name: Accept
+              value: application/json
+          description: 'Raw JSON from /v1/snapshots endpoint'
+          tags:
+            - tag: component
+              value: api
+            - tag: scope
+              value: raw
+          triggers:
+            - uuid: ca9dbd8415bd4ad3a541b572eb2cd676
+              expression: 'nodata(/REG.RU CLOUD/rrc-api-snapshots,3h)=1'
+              name: 'RRC: No data from snapshots API'
+              event_name: 'REG.RU CLOUD: Нет данных от API snapshots более 3 часов'
+              priority: AVERAGE
+              description: 'API snapshots не отвечает или нет данных'
+        - uuid: 9ad24f3ba1c34ef9986d0a5fc5d84625
+          name: 'RRC: API IPs Raw'
+          type: HTTP_AGENT
+          key: rrc-api-ips
+          delay: '{$RRC_UPDATE_INTERVAL}'
+          history: 1d
+          value_type: TEXT
+          trends: '0'
+          status_codes: '200,400,401,403,404,500,502,503'
+          timeout: '{$RRC_API_TIMEOUT}'
+          url: 'https://api.cloudvps.reg.ru/v1/ips'
+          headers:
+            - name: Authorization
+              value: 'Bearer {$RRC_API_KEY}'
+            - name: Accept
+              value: application/json
+          description: 'Raw JSON from /v1/ips endpoint'
+          tags:
+            - tag: component
+              value: api
+            - tag: scope
+              value: raw
+          triggers:
+            - uuid: d9d1d8b4662448dfbd04a580e4d88344
+              expression: 'nodata(/REG.RU CLOUD/rrc-api-ips,3h)=1'
+              name: 'RRC: No data from IPs API'
+              event_name: 'REG.RU CLOUD: Нет данных от API IPs более 3 часов'
+              priority: AVERAGE
+              description: 'API IPs не отвечает или нет данных'
+        - uuid: ca9ac63f433149d19f94dbd448975934
+          name: 'RRC: API VPCs Raw'
+          type: HTTP_AGENT
+          key: rrc-api-vpcs
+          delay: '{$RRC_UPDATE_INTERVAL}'
+          history: 1d
+          value_type: TEXT
+          trends: '0'
+          status_codes: '200,400,401,403,404,500,502,503'
+          timeout: '{$RRC_API_TIMEOUT}'
+          url: 'https://api.cloudvps.reg.ru/v1/vpcs'
+          headers:
+            - name: Authorization
+              value: 'Bearer {$RRC_API_KEY}'
+            - name: Accept
+              value: application/json
+          description: 'Raw JSON from /v1/vpcs endpoint'
+          tags:
+            - tag: component
+              value: api
+            - tag: scope
+              value: raw
+          triggers:
+            - uuid: 5a5470b3382449e1a53dc22a7afd6d0a
+              expression: 'nodata(/REG.RU CLOUD/rrc-api-vpcs,3h)=1'
+              name: 'RRC: No data from VPCs API'
+              event_name: 'REG.RU CLOUD: Нет данных от API VPCs более 3 часов'
+              priority: AVERAGE
+              description: 'API VPCs не отвечает или нет данных'
+        # ============================================
+        # BALANCE DEPENDENT ITEMS
+        # ============================================
+        - uuid: bd620a31546f4b0585df00452f729bda
+          name: 'RRC: Balance'
+          type: DEPENDENT
+          key: rrc.balance
+          delay: '0'
+          history: 90d
+          value_type: FLOAT
+          units: 'RUB'
+          description: 'Текущий баланс аккаунта CloudVPS'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.balance_data.balance
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: rrc-api-balance-data
+          tags:
+            - tag: component
+              value: billing
+            - tag: scope
+              value: finance
+          triggers:
+            - uuid: a392c4b108b2406a83d879396f431af1
+              expression: 'last(/REG.RU CLOUD/rrc.balance)<{$RRC_BALANCE_WARNING}'
+              name: 'RRC: Low balance (warning)'
+              event_name: 'REG.RU CLOUD: Баланс {ITEM.LASTVALUE} меньше {$RRC_BALANCE_WARNING} RUB'
+              priority: WARNING
+              manual_close: 'YES'
+              dependencies:
+                - name: 'RRC: Low balance (high)'
+                  expression: 'last(/REG.RU CLOUD/rrc.balance)<{$RRC_BALANCE_HIGH}'
+            - uuid: 719862a095024d48897ae79ff9f80478
+              expression: 'last(/REG.RU CLOUD/rrc.balance)<{$RRC_BALANCE_HIGH}'
+              name: 'RRC: Low balance (high)'
+              event_name: 'REG.RU CLOUD: Баланс {ITEM.LASTVALUE} меньше {$RRC_BALANCE_HIGH} RUB'
+              priority: HIGH
+              dependencies:
+                - name: 'RRC: Balance is zero'
+                  expression: 'last(/REG.RU CLOUD/rrc.balance)=0'
+            - uuid: bf901144d0ba446da8367f2289893626
+              expression: 'last(/REG.RU CLOUD/rrc.balance)=0'
+              name: 'RRC: Balance is zero'
+              event_name: 'REG.RU CLOUD: Баланс 0 RUB!'
+              priority: DISASTER
+        - uuid: 052a7e27240b47c7b5a6c50e1c968416
+          name: 'RRC: Days Left'
+          type: DEPENDENT
+          key: rrc.days_left
+          delay: '0'
+          history: 90d
+          value_type: FLOAT
+          units: 'days'
+          description: 'Дней до отключения услуг при текущем балансе'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.balance_data.days_left
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: rrc-api-balance-data
+          tags:
+            - tag: component
+              value: billing
+            - tag: scope
+              value: finance
+          triggers:
+            - uuid: 2505b6936b6949458e38d989c5f511bb
+              expression: 'last(/REG.RU CLOUD/rrc.days_left)<{$RRC_DAYSLEFT_WARNING}'
+              name: 'RRC: Days left warning'
+              event_name: 'REG.RU CLOUD: Осталось {ITEM.LASTVALUE} дней (меньше {$RRC_DAYSLEFT_WARNING})'
+              priority: WARNING
+              manual_close: 'YES'
+              dependencies:
+                - name: 'RRC: Days left critical'
+                  expression: 'last(/REG.RU CLOUD/rrc.days_left)<{$RRC_DAYSLEFT_HIGH}'
+            - uuid: 6eb28b9364b849d3918f59c12fdeb540
+              expression: 'last(/REG.RU CLOUD/rrc.days_left)<{$RRC_DAYSLEFT_HIGH}'
+              name: 'RRC: Days left critical'
+              event_name: 'REG.RU CLOUD: Осталось {ITEM.LASTVALUE} дней (меньше {$RRC_DAYSLEFT_HIGH})'
+              priority: HIGH
+              manual_close: 'YES'
+              dependencies:
+                - name: 'RRC: Zero days left'
+                  expression: 'last(/REG.RU CLOUD/rrc.days_left)=0'
+            - uuid: 6983f44c88664fb99d6f05ccc4430311
+              expression: 'last(/REG.RU CLOUD/rrc.days_left)=0'
+              name: 'RRC: Zero days left'
+              event_name: 'REG.RU CLOUD: Осталось 0 дней!'
+              priority: DISASTER
+              manual_close: 'YES'
+        - uuid: 57ff0d525d034388bb1fd03679de0437
+          name: 'RRC: Hours Left'
+          type: DEPENDENT
+          key: rrc.hours_left
+          delay: '0'
+          history: 90d
+          value_type: FLOAT
+          units: 'hours'
+          description: 'Часов до отключения услуг'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.balance_data.hours_left
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: rrc-api-balance-data
+          tags:
+            - tag: component
+              value: billing
+            - tag: scope
+              value: finance
+        - uuid: 692f9fc4ca4444ac85d373626130f24d
+          name: 'RRC: Monthly Cost'
+          type: DEPENDENT
+          key: rrc.monthly_cost
+          delay: '0'
+          history: 90d
+          value_type: FLOAT
+          units: 'RUB'
+          description: 'Ежемесячная стоимость всех ресурсов'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.balance_data.monthly_cost
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: rrc-api-balance-data
+          tags:
+            - tag: component
+              value: billing
+            - tag: scope
+              value: finance
+        - uuid: f77c964952b949b68a286a7367a91c20
+          name: 'RRC: Hourly Cost'
+          type: DEPENDENT
+          key: rrc.hourly_cost
+          delay: '0'
+          history: 90d
+          value_type: FLOAT
+          units: 'RUB'
+          description: 'Почасовая стоимость всех ресурсов'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.balance_data.hourly_cost
+              error_handler: DISCARD_VALUE
+          master_item:
+            key: rrc-api-balance-data
+          tags:
+            - tag: component
+              value: billing
+            - tag: scope
+              value: finance
+        - uuid: 728d9576a5aa46709826c0ae58bd010b
+          name: 'RRC: Bonus Balance'
+          type: DEPENDENT
+          key: rrc.bonus
+          delay: '0'
+          history: 90d
+          value_type: FLOAT
+          units: 'RUB'
+          description: 'Бонусный баланс'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.balance_data.bonus_balance
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '0'
+          master_item:
+            key: rrc-api-balance-data
+          tags:
+            - tag: component
+              value: billing
+            - tag: scope
+              value: finance
+        # ============================================
+        # REGLETS (VPS) SUMMARY ITEMS
+        # ============================================
+        - uuid: 1b3d7c4bd65c4d7b933d5868fa020b3c
+          name: 'RRC: VPS Total Count'
+          type: DEPENDENT
+          key: rrc.reglets.total
+          delay: '0'
+          history: 90d
+          value_type: UNSIGNED
+          description: 'Общее количество VPS серверов'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.reglets
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '[]'
+            - type: JSONPATH
+              parameters:
+                - '$.length()'
+          master_item:
+            key: rrc-api-reglets
+          tags:
+            - tag: component
+              value: inventory
+            - tag: scope
+              value: reglets
+          triggers:
+            - uuid: 2252dee31c464a6b91c733f83b1bbe62
+              expression: 'last(/REG.RU CLOUD/rrc.reglets.total)=0'
+              name: 'RRC: No VPS servers found'
+              event_name: 'REG.RU CLOUD: VPS серверы не обнаружены'
+              priority: INFO
+              description: 'В аккаунте нет VPS серверов'
+              manual_close: 'YES'
+        - uuid: ad7706a049d641618b232fdd10c1421f
+          name: 'RRC: VPS Active Count'
+          type: DEPENDENT
+          key: rrc.reglets.active
+          delay: '0'
+          history: 90d
+          value_type: UNSIGNED
+          description: 'Количество активных VPS'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.reglets
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '[]'
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var reglets = JSON.parse(value);
+                  var count = 0;
+                  for (var i = 0; i < reglets.length; i++) {
+                    if (reglets[i].status === 'active') count++;
+                  }
+                  return count;
+          master_item:
+            key: rrc-api-reglets
+          tags:
+            - tag: component
+              value: inventory
+            - tag: scope
+              value: reglets
+        - uuid: bb89619d33b04e1f913065798ebf7e79
+          name: 'RRC: VPS Stopped Count'
+          type: DEPENDENT
+          key: rrc.reglets.stopped
+          delay: '0'
+          history: 90d
+          value_type: UNSIGNED
+          description: 'Количество остановленных VPS'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.reglets
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '[]'
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var reglets = JSON.parse(value);
+                  var count = 0;
+                  for (var i = 0; i < reglets.length; i++) {
+                    if (reglets[i].status === 'off' || reglets[i].status === 'stopped') count++;
+                  }
+                  return count;
+          master_item:
+            key: rrc-api-reglets
+          tags:
+            - tag: component
+              value: inventory
+            - tag: scope
+              value: reglets
+        - uuid: 58697f4cbe8a4997b30eff23513028d6
+          name: 'RRC: VPS Total vCPUs'
+          type: DEPENDENT
+          key: rrc.reglets.vcpus.total
+          delay: '0'
+          history: 90d
+          value_type: UNSIGNED
+          units: 'cores'
+          description: 'Суммарное количество vCPU всех VPS'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.reglets
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '[]'
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var reglets = JSON.parse(value);
+                  var total = 0;
+                  for (var i = 0; i < reglets.length; i++) {
+                    total += reglets[i].vcpus || 0;
+                  }
+                  return total;
+          master_item:
+            key: rrc-api-reglets
+          tags:
+            - tag: component
+              value: inventory
+            - tag: scope
+              value: reglets
+        - uuid: 3ecfae567a874ca0bf870bf8ec70e9be
+          name: 'RRC: VPS Total Memory'
+          type: DEPENDENT
+          key: rrc.reglets.memory.total
+          delay: '0'
+          history: 90d
+          value_type: UNSIGNED
+          units: 'MB'
+          description: 'Суммарный объём RAM всех VPS'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.reglets
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '[]'
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var reglets = JSON.parse(value);
+                  var total = 0;
+                  for (var i = 0; i < reglets.length; i++) {
+                    total += reglets[i].memory || 0;
+                  }
+                  return total;
+          master_item:
+            key: rrc-api-reglets
+          tags:
+            - tag: component
+              value: inventory
+            - tag: scope
+              value: reglets
+        - uuid: 7f87b4056dd04fc6abe14a896ee331a5
+          name: 'RRC: VPS Total Disk'
+          type: DEPENDENT
+          key: rrc.reglets.disk.total
+          delay: '0'
+          history: 90d
+          value_type: UNSIGNED
+          units: 'GB'
+          description: 'Суммарный объём дисков всех VPS'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.reglets
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '[]'
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var reglets = JSON.parse(value);
+                  var total = 0;
+                  for (var i = 0; i < reglets.length; i++) {
+                    total += reglets[i].disk || 0;
+                  }
+                  return total;
+          master_item:
+            key: rrc-api-reglets
+          tags:
+            - tag: component
+              value: inventory
+            - tag: scope
+              value: reglets
+        # ============================================
+        # SNAPSHOTS SUMMARY ITEMS
+        # ============================================
+        - uuid: e25fdbc41f58454daedce3396379ff4d
+          name: 'RRC: Snapshots Count'
+          type: DEPENDENT
+          key: rrc.snapshots.count
+          delay: '0'
+          history: 90d
+          value_type: UNSIGNED
+          description: 'Количество снапшотов'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.snapshots
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '[]'
+            - type: JSONPATH
+              parameters:
+                - '$.length()'
+          master_item:
+            key: rrc-api-snapshots
+          tags:
+            - tag: component
+              value: inventory
+            - tag: scope
+              value: snapshots
+          triggers:
+            - uuid: cd120e5937b649f29dbe88f469441d43
+              expression: 'last(/REG.RU CLOUD/rrc.snapshots.count)>{$RRC_SNAPSHOTS_MAX}'
+              name: 'RRC: Too many snapshots'
+              event_name: 'REG.RU CLOUD: Слишком много снапшотов ({ITEM.LASTVALUE} > {$RRC_SNAPSHOTS_MAX})'
+              priority: WARNING
+              description: 'Количество снапшотов превышает пороговое значение'
+              manual_close: 'YES'
+        - uuid: 8ca356e245b54fc59d52687f13e58293
+          name: 'RRC: Snapshots Total Size'
+          type: DEPENDENT
+          key: rrc.snapshots.size.total
+          delay: '0'
+          history: 90d
+          value_type: UNSIGNED
+          units: 'B'
+          description: 'Общий размер всех снапшотов в байтах'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.snapshots
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '[]'
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var snapshots = JSON.parse(value);
+                  var total = 0;
+                  for (var i = 0; i < snapshots.length; i++) {
+                    total += snapshots[i].size || 0;
+                  }
+                  return total;
+          master_item:
+            key: rrc-api-snapshots
+          tags:
+            - tag: component
+              value: inventory
+            - tag: scope
+              value: snapshots
+          triggers:
+            - uuid: c177361e5aed49c88988ab0fcc8874f6
+              expression: 'last(/REG.RU CLOUD/rrc.snapshots.size.total)>{$RRC_SNAPSHOTS_SIZE_MAX}'
+              name: 'RRC: Snapshots size exceeded'
+              event_name: 'REG.RU CLOUD: Размер снапшотов превышает лимит'
+              priority: WARNING
+              description: 'Общий размер снапшотов превышает {$RRC_SNAPSHOTS_SIZE_MAX} байт'
+              manual_close: 'YES'
+        # ============================================
+        # IPs SUMMARY ITEMS
+        # ============================================
+        - uuid: fd7e9acd1ae148178d25efcb06075543
+          name: 'RRC: IPv4 Count'
+          type: DEPENDENT
+          key: rrc.ips.ipv4.count
+          delay: '0'
+          history: 90d
+          value_type: UNSIGNED
+          description: 'Количество IPv4 адресов'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.ips
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '[]'
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var ips = JSON.parse(value);
+                  var count = 0;
+                  for (var i = 0; i < ips.length; i++) {
+                    if (ips[i].type === 'ipv4' || ips[i].ip.indexOf('.') !== -1) count++;
+                  }
+                  return count;
+          master_item:
+            key: rrc-api-ips
+          tags:
+            - tag: component
+              value: inventory
+            - tag: scope
+              value: network
+        - uuid: 38ff7625e260481583971d103fbe3d26
+          name: 'RRC: IPv6 Count'
+          type: DEPENDENT
+          key: rrc.ips.ipv6.count
+          delay: '0'
+          history: 90d
+          value_type: UNSIGNED
+          description: 'Количество IPv6 адресов'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.ips
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '[]'
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var ips = JSON.parse(value);
+                  var count = 0;
+                  for (var i = 0; i < ips.length; i++) {
+                    if (ips[i].type === 'ipv6' || ips[i].ip.indexOf(':') !== -1) count++;
+                  }
+                  return count;
+          master_item:
+            key: rrc-api-ips
+          tags:
+            - tag: component
+              value: inventory
+            - tag: scope
+              value: network
+        # ============================================
+        # VPCs SUMMARY ITEMS
+        # ============================================
+        - uuid: c33456c9d2274229aef052f1fa652b88
+          name: 'RRC: VPC Count'
+          type: DEPENDENT
+          key: rrc.vpcs.count
+          delay: '0'
+          history: 90d
+          value_type: UNSIGNED
+          description: 'Количество виртуальных приватных сетей'
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  // API returns either {"vpcs": [...]} or just [...]
+                  var vpcs = data.vpcs || data;
+                  return Array.isArray(vpcs) ? vpcs.length : 0;
+          master_item:
+            key: rrc-api-vpcs
+          tags:
+            - tag: component
+              value: inventory
+            - tag: scope
+              value: network
+        # ============================================
+        # API STATUS ITEMS
+        # ============================================
+        - uuid: eb4abe99cb154602a41c3ad68fbac8e2
+          name: 'RRC: API Status'
+          type: DEPENDENT
+          key: rrc.api.status
+          delay: '0'
+          history: 7d
+          value_type: TEXT
+          trends: '0'
+          description: 'Статус ответа API (success/error)'
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  try {
+                    var data = JSON.parse(value);
+                    // Check if response has 'reglets' key (valid response)
+                    if (data.hasOwnProperty('reglets')) {
+                      return 'success';
+                    }
+                    // Check for error in response
+                    if (data.error || data.message) {
+                      return 'error: ' + (data.message || data.error);
+                    }
+                    return 'success';
+                  } catch(e) {
+                    return 'error: invalid JSON';
+                  }
+          master_item:
+            key: rrc-api-reglets
+          tags:
+            - tag: component
+              value: api
+            - tag: scope
+              value: availability
+          triggers:
+            - uuid: c6b621295c3c414097d4a162048038be
+              expression: 'find(/REG.RU CLOUD/rrc.api.status,,"regexp","^error")=1 and find(/REG.RU CLOUD/rrc.api.status,#2,"regexp","^error")=1 and find(/REG.RU CLOUD/rrc.api.status,#3,"regexp","^error")=1'
+              name: 'RRC: API errors (3 consecutive)'
+              event_name: 'REG.RU CLOUD: API возвращает ошибки 3 раза подряд: {ITEM.LASTVALUE}'
+              priority: HIGH
+              description: 'CloudVPS API возвращает ошибки при последних 3 запросах'
+      # ============================================
+      # DISCOVERY RULES
+      # ============================================
+      discovery_rules:
+        # --------------------------------------------
+        # VPS (Reglets) Discovery
+        # --------------------------------------------
+        - uuid: 546bf56b2d1d4060a2d47b72801ab7c8
+          name: 'RRC: VPS Discovery'
+          type: DEPENDENT
+          key: rrc.discovery.reglets
+          delay: '0'
+          lifetime: 7d
+          enabled_lifetime_type: DISABLE_NEVER
+          description: 'Автообнаружение VPS серверов из /v1/reglets'
+          master_item:
+            key: rrc-api-reglets
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.reglets
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '[]'
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var reglets = JSON.parse(value);
+                  var lld = [];
+                  for (var i = 0; i < reglets.length; i++) {
+                    var r = reglets[i];
+                    lld.push({
+                      "{#REGLET_ID}": String(r.id || ""),
+                      "{#REGLET_NAME}": String(r.name || ""),
+                      "{#REGLET_STATUS}": String(r.status || ""),
+                      "{#REGLET_REGION}": String(r.region ? r.region.slug : ""),
+                      "{#REGLET_VCPUS}": String(r.vcpus || ""),
+                      "{#REGLET_MEMORY}": String(r.memory || ""),
+                      "{#REGLET_DISK}": String(r.disk || ""),
+                      "{#REGLET_IP}": String(r.ip_address || ""),
+                      "{#REGLET_IMAGE}": String(r.image ? (r.image.distribution + " " + r.image.name) : "")
+                    });
+                  }
+                  return JSON.stringify(lld);
+          lld_macro_paths:
+            - lld_macro: '{#REGLET_ID}'
+              path: '$.["{#REGLET_ID}"]'
+            - lld_macro: '{#REGLET_NAME}'
+              path: '$.["{#REGLET_NAME}"]'
+            - lld_macro: '{#REGLET_STATUS}'
+              path: '$.["{#REGLET_STATUS}"]'
+            - lld_macro: '{#REGLET_REGION}'
+              path: '$.["{#REGLET_REGION}"]'
+            - lld_macro: '{#REGLET_IP}'
+              path: '$.["{#REGLET_IP}"]'
+          item_prototypes:
+            - uuid: 6819061e99b544b38e2c82a4b49fdf4f
+              name: 'VPS [{#REGLET_NAME}]: Status'
+              type: DEPENDENT
+              key: 'rrc.reglet.status[{#REGLET_ID}]'
+              delay: '0'
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+              description: 'Статус VPS сервера'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.reglets[?(@.id=={#REGLET_ID})].status.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: 'unknown'
+              master_item:
+                key: rrc-api-reglets
+              tags:
+                - tag: component
+                  value: reglet
+                - tag: reglet
+                  value: '{#REGLET_NAME}'
+                - tag: region
+                  value: '{#REGLET_REGION}'
+            - uuid: c8fc78e3b1ac48e598257ed256ac7613
+              name: 'VPS [{#REGLET_NAME}]: vCPUs'
+              type: DEPENDENT
+              key: 'rrc.reglet.vcpus[{#REGLET_ID}]'
+              delay: '0'
+              history: 90d
+              value_type: UNSIGNED
+              units: 'cores'
+              description: 'Количество виртуальных CPU'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.reglets[?(@.id=={#REGLET_ID})].vcpus.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '0'
+              master_item:
+                key: rrc-api-reglets
+              tags:
+                - tag: component
+                  value: reglet
+                - tag: reglet
+                  value: '{#REGLET_NAME}'
+                - tag: scope
+                  value: config
+            - uuid: 808c1ed9ecaf4424bc96a3bedc4a760d
+              name: 'VPS [{#REGLET_NAME}]: Memory'
+              type: DEPENDENT
+              key: 'rrc.reglet.memory[{#REGLET_ID}]'
+              delay: '0'
+              history: 90d
+              value_type: UNSIGNED
+              units: 'MB'
+              description: 'Объём оперативной памяти'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.reglets[?(@.id=={#REGLET_ID})].memory.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '0'
+              master_item:
+                key: rrc-api-reglets
+              tags:
+                - tag: component
+                  value: reglet
+                - tag: reglet
+                  value: '{#REGLET_NAME}'
+                - tag: scope
+                  value: config
+            - uuid: 8ed6af1882f54b98baf09707712748da
+              name: 'VPS [{#REGLET_NAME}]: Disk'
+              type: DEPENDENT
+              key: 'rrc.reglet.disk[{#REGLET_ID}]'
+              delay: '0'
+              history: 90d
+              value_type: UNSIGNED
+              units: 'GB'
+              description: 'Размер диска'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.reglets[?(@.id=={#REGLET_ID})].disk.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '0'
+              master_item:
+                key: rrc-api-reglets
+              tags:
+                - tag: component
+                  value: reglet
+                - tag: reglet
+                  value: '{#REGLET_NAME}'
+                - tag: scope
+                  value: config
+            - uuid: f736896704724cfa914da442acf7ad56
+              name: 'VPS [{#REGLET_NAME}]: IP Address'
+              type: DEPENDENT
+              key: 'rrc.reglet.ip[{#REGLET_ID}]'
+              delay: '0'
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+              description: 'Основной IP адрес VPS'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.reglets[?(@.id=={#REGLET_ID})].ip_address.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: ''
+              master_item:
+                key: rrc-api-reglets
+              tags:
+                - tag: component
+                  value: reglet
+                - tag: reglet
+                  value: '{#REGLET_NAME}'
+                - tag: scope
+                  value: network
+            - uuid: 62d9f0edbfba4aff82e9cbbad7cbdb1b
+              name: 'VPS [{#REGLET_NAME}]: Region'
+              type: DEPENDENT
+              key: 'rrc.reglet.region[{#REGLET_ID}]'
+              delay: '0'
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+              description: 'Регион размещения VPS'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.reglets[?(@.id=={#REGLET_ID})].region.slug.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: ''
+              master_item:
+                key: rrc-api-reglets
+              tags:
+                - tag: component
+                  value: reglet
+                - tag: reglet
+                  value: '{#REGLET_NAME}'
+                - tag: scope
+                  value: location
+            - uuid: 62c1092ff58a4654b3f0522d9a082221
+              name: 'VPS [{#REGLET_NAME}]: Hourly Price'
+              type: DEPENDENT
+              key: 'rrc.reglet.price_hourly[{#REGLET_ID}]'
+              delay: '0'
+              history: 90d
+              value_type: FLOAT
+              units: 'RUB'
+              description: 'Почасовая стоимость VPS'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.reglets[?(@.id=={#REGLET_ID})].size.price_hourly.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '0'
+              master_item:
+                key: rrc-api-reglets
+              tags:
+                - tag: component
+                  value: reglet
+                - tag: reglet
+                  value: '{#REGLET_NAME}'
+                - tag: scope
+                  value: billing
+            - uuid: 348acf73bc8c4692824bb6e2d6c3e54d
+              name: 'VPS [{#REGLET_NAME}]: Monthly Price'
+              type: DEPENDENT
+              key: 'rrc.reglet.price_monthly[{#REGLET_ID}]'
+              delay: '0'
+              history: 90d
+              value_type: FLOAT
+              units: 'RUB'
+              description: 'Ежемесячная стоимость VPS'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.reglets[?(@.id=={#REGLET_ID})].size.price_monthly.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '0'
+              master_item:
+                key: rrc-api-reglets
+              tags:
+                - tag: component
+                  value: reglet
+                - tag: reglet
+                  value: '{#REGLET_NAME}'
+                - tag: scope
+                  value: billing
+            - uuid: 368bc031cd6a4ff5978a6f3df98ad41c
+              name: 'VPS [{#REGLET_NAME}]: Backups Enabled'
+              type: DEPENDENT
+              key: 'rrc.reglet.backups[{#REGLET_ID}]'
+              delay: '0'
+              history: 7d
+              value_type: UNSIGNED
+              description: 'Включены ли автоматические бэкапы (1=да, 0=нет)'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.reglets[?(@.id=={#REGLET_ID})].backups_enabled.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: 'false'
+                - type: BOOL_TO_DECIMAL
+              master_item:
+                key: rrc-api-reglets
+              valuemap:
+                name: 'Boolean Yes/No'
+              tags:
+                - tag: component
+                  value: reglet
+                - tag: reglet
+                  value: '{#REGLET_NAME}'
+                - tag: scope
+                  value: backup
+            - uuid: 92fe12cb9f584785bdf083b6ecb67cae
+              name: 'VPS [{#REGLET_NAME}]: Image'
+              type: DEPENDENT
+              key: 'rrc.reglet.image[{#REGLET_ID}]'
+              delay: '0'
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+              description: 'Образ операционной системы'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.reglets[?(@.id=={#REGLET_ID})].image'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '{}'
+                - type: JAVASCRIPT
+                  parameters:
+                    - |
+                      var img = JSON.parse(value);
+                      if (Array.isArray(img)) img = img[0] || {};
+                      return (img.distribution || '') + ' ' + (img.name || '');
+              master_item:
+                key: rrc-api-reglets
+              tags:
+                - tag: component
+                  value: reglet
+                - tag: reglet
+                  value: '{#REGLET_NAME}'
+                - tag: scope
+                  value: config
+            - uuid: f0a0ecac62d344b7976b533e661b0493
+              name: 'VPS [{#REGLET_NAME}]: Created At'
+              type: DEPENDENT
+              key: 'rrc.reglet.created[{#REGLET_ID}]'
+              delay: '0'
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+              description: 'Дата создания VPS'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.reglets[?(@.id=={#REGLET_ID})].created_at.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: ''
+              master_item:
+                key: rrc-api-reglets
+              tags:
+                - tag: component
+                  value: reglet
+                - tag: reglet
+                  value: '{#REGLET_NAME}'
+                - tag: scope
+                  value: info
+          trigger_prototypes:
+            - uuid: 48be087a59c94ec3a3db0b8208be64f2
+              expression: 'last(/REG.RU CLOUD/rrc.reglet.status[{#REGLET_ID}])<>"active" and last(/REG.RU CLOUD/rrc.reglet.status[{#REGLET_ID}])<>"new"'
+              name: 'VPS [{#REGLET_NAME}]: Not active'
+              event_name: 'VPS {#REGLET_NAME} ({#REGLET_IP}): статус {ITEM.LASTVALUE}'
+              priority: HIGH
+              description: 'VPS сервер {#REGLET_NAME} не в активном состоянии'
+              tags:
+                - tag: scope
+                  value: availability
+            - uuid: b663731e0fcb481e976de4415c53236b
+              expression: 'last(/REG.RU CLOUD/rrc.reglet.backups[{#REGLET_ID}])=0'
+              name: 'VPS [{#REGLET_NAME}]: Backups disabled'
+              event_name: 'VPS {#REGLET_NAME}: Бэкапы отключены'
+              priority: INFO
+              description: 'На VPS {#REGLET_NAME} не включены автоматические бэкапы'
+              manual_close: 'YES'
+              tags:
+                - tag: scope
+                  value: backup
+          graph_prototypes:
+            - uuid: 8105d4c30b78481b89b1430030f5f749
+              name: 'VPS [{#REGLET_NAME}]: Resources'
+              graph_items:
+                - color: 1A7C11
+                  item:
+                    host: 'REG.RU CLOUD'
+                    key: 'rrc.reglet.vcpus[{#REGLET_ID}]'
+                - sortorder: '1'
+                  color: 2774A4
+                  item:
+                    host: 'REG.RU CLOUD'
+                    key: 'rrc.reglet.memory[{#REGLET_ID}]'
+                - sortorder: '2'
+                  color: F63100
+                  item:
+                    host: 'REG.RU CLOUD'
+                    key: 'rrc.reglet.disk[{#REGLET_ID}]'
+        # --------------------------------------------
+        # Snapshots Discovery
+        # --------------------------------------------
+        - uuid: ac35bac820e1464e92a9f7ab12eb3fe2
+          name: 'RRC: Snapshots Discovery'
+          type: DEPENDENT
+          key: rrc.discovery.snapshots
+          delay: '0'
+          lifetime: 3d
+          enabled_lifetime_type: DISABLE_NEVER
+          description: 'Автообнаружение снапшотов'
+          master_item:
+            key: rrc-api-snapshots
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.snapshots
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '[]'
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var snapshots = JSON.parse(value);
+                  var lld = [];
+                  for (var i = 0; i < snapshots.length; i++) {
+                    var s = snapshots[i];
+                    lld.push({
+                      "{#SNAPSHOT_ID}": String(s.id || ""),
+                      "{#SNAPSHOT_NAME}": String(s.name || ""),
+                      "{#SNAPSHOT_REGLET}": String(s.reglet_id || "")
+                    });
+                  }
+                  return JSON.stringify(lld);
+          lld_macro_paths:
+            - lld_macro: '{#SNAPSHOT_ID}'
+              path: '$.["{#SNAPSHOT_ID}"]'
+            - lld_macro: '{#SNAPSHOT_NAME}'
+              path: '$.["{#SNAPSHOT_NAME}"]'
+            - lld_macro: '{#SNAPSHOT_REGLET}'
+              path: '$.["{#SNAPSHOT_REGLET}"]'
+          item_prototypes:
+            - uuid: 355d3761576640eca50fee682243ce8f
+              name: 'Snapshot [{#SNAPSHOT_NAME}]: Size'
+              type: DEPENDENT
+              key: 'rrc.snapshot.size[{#SNAPSHOT_ID}]'
+              delay: '0'
+              history: 90d
+              value_type: UNSIGNED
+              units: 'B'
+              description: 'Размер снапшота в байтах'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.snapshots[?(@.id=={#SNAPSHOT_ID})].size.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: '0'
+              master_item:
+                key: rrc-api-snapshots
+              tags:
+                - tag: component
+                  value: snapshot
+                - tag: snapshot
+                  value: '{#SNAPSHOT_NAME}'
+            - uuid: 4d44420d4e314024aecaceb00376c5c0
+              name: 'Snapshot [{#SNAPSHOT_NAME}]: Created At'
+              type: DEPENDENT
+              key: 'rrc.snapshot.created[{#SNAPSHOT_ID}]'
+              delay: '0'
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+              description: 'Дата создания снапшота'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.snapshots[?(@.id=={#SNAPSHOT_ID})].created_at.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: ''
+              master_item:
+                key: rrc-api-snapshots
+              tags:
+                - tag: component
+                  value: snapshot
+                - tag: snapshot
+                  value: '{#SNAPSHOT_NAME}'
+        # --------------------------------------------
+        # VPC Discovery
+        # --------------------------------------------
+        - uuid: e301baf733d6491fb417af6cd81fef18
+          name: 'RRC: VPC Discovery'
+          type: DEPENDENT
+          key: rrc.discovery.vpcs
+          delay: '0'
+          lifetime: 7d
+          enabled_lifetime_type: DISABLE_NEVER
+          description: 'Автообнаружение виртуальных приватных сетей'
+          master_item:
+            key: rrc-api-vpcs
+          preprocessing:
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var data = JSON.parse(value);
+                  // API returns either {"vpcs": [...]} or just [...]
+                  var vpcs = data.vpcs || data;
+                  if (!Array.isArray(vpcs)) vpcs = [];
+                  var lld = [];
+                  for (var i = 0; i < vpcs.length; i++) {
+                    var v = vpcs[i];
+                    lld.push({
+                      "{#VPC_ID}": String(v.id || ""),
+                      "{#VPC_NAME}": String(v.name || ""),
+                      "{#VPC_REGION}": String(v.region ? v.region.slug : "")
+                    });
+                  }
+                  return JSON.stringify(lld);
+          lld_macro_paths:
+            - lld_macro: '{#VPC_ID}'
+              path: '$.["{#VPC_ID}"]'
+            - lld_macro: '{#VPC_NAME}'
+              path: '$.["{#VPC_NAME}"]'
+            - lld_macro: '{#VPC_REGION}'
+              path: '$.["{#VPC_REGION}"]'
+          item_prototypes:
+            - uuid: e0dcbb606fb84771be7831b3e7a0de8e
+              name: 'VPC [{#VPC_NAME}]: Region'
+              type: DEPENDENT
+              key: 'rrc.vpc.region[{#VPC_ID}]'
+              delay: '0'
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+              description: 'Регион VPC'
+              preprocessing:
+                - type: JAVASCRIPT
+                  parameters:
+                    - |
+                      var data = JSON.parse(value);
+                      var vpcs = data.vpcs || data;
+                      if (!Array.isArray(vpcs)) return '';
+                      for (var i = 0; i < vpcs.length; i++) {
+                        if (vpcs[i].id == {#VPC_ID}) {
+                          return vpcs[i].region ? vpcs[i].region.slug : '';
+                        }
+                      }
+                      return '';
+              master_item:
+                key: rrc-api-vpcs
+              tags:
+                - tag: component
+                  value: vpc
+                - tag: vpc
+                  value: '{#VPC_NAME}'
+      # ============================================
+      # MACROS
+      # ============================================
+      macros:
+        - macro: '{$RRC_API_KEY}'
+          type: SECRET_TEXT
+          description: 'REG.RU CloudVPS API ключ (Bearer token)'
+        - macro: '{$RRC_API_TIMEOUT}'
+          value: '30s'
+          description: 'Таймаут HTTP запросов к API'
+        - macro: '{$RRC_UPDATE_INTERVAL}'
+          value: '1h'
+          description: 'Интервал опроса API (balance, snapshots, ips, vpcs)'
+        - macro: '{$RRC_UPDATE_INTERVAL_REGLETS}'
+          value: '5m'
+          description: 'Интервал опроса API reglets (статусы VPS)'
+        - macro: '{$RRC_BALANCE_WARNING}'
+          value: '500'
+          description: 'Порог баланса для предупреждения (WARNING)'
+        - macro: '{$RRC_BALANCE_HIGH}'
+          value: '200'
+          description: 'Порог баланса для критического алерта (HIGH)'
+        - macro: '{$RRC_DAYSLEFT_WARNING}'
+          value: '7'
+          description: 'Порог дней для предупреждения'
+        - macro: '{$RRC_DAYSLEFT_HIGH}'
+          value: '3'
+          description: 'Порог дней для критического алерта'
+        - macro: '{$RRC_SNAPSHOTS_MAX}'
+          value: '10'
+          description: 'Максимальное количество снапшотов'
+        - macro: '{$RRC_SNAPSHOTS_SIZE_MAX}'
+          value: '107374182400'
+          description: 'Максимальный размер снапшотов в байтах (100GB)'
+      # ============================================
+      # DASHBOARDS
+      # ============================================
+      dashboards:
+        - uuid: a6258dacfb694080bb8d41b5ca1540de
+          name: 'REG.RU CLOUD Overview'
+          pages:
+            - name: 'Overview'
+              widgets:
+                - type: item
+                  name: 'Баланс'
+                  width: '6'
+                  height: '4'
+                  fields:
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: 'REG.RU CLOUD'
+                        key: rrc.balance
+                    - type: INTEGER
+                      name: show
+                      value: '1'
+                    - type: INTEGER
+                      name: show
+                      value: '2'
+                    - type: INTEGER
+                      name: show
+                      value: '4'
+                - type: item
+                  name: 'Дней осталось'
+                  x: '6'
+                  width: '6'
+                  height: '4'
+                  fields:
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: 'REG.RU CLOUD'
+                        key: rrc.days_left
+                    - type: INTEGER
+                      name: show
+                      value: '1'
+                    - type: INTEGER
+                      name: show
+                      value: '2'
+                    - type: INTEGER
+                      name: show
+                      value: '4'
+                - type: item
+                  name: 'Всего VPS'
+                  x: '12'
+                  width: '4'
+                  height: '4'
+                  fields:
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: 'REG.RU CLOUD'
+                        key: rrc.reglets.total
+                - type: item
+                  name: 'Активных VPS'
+                  x: '16'
+                  width: '4'
+                  height: '4'
+                  fields:
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: 'REG.RU CLOUD'
+                        key: rrc.reglets.active
+                - type: item
+                  name: 'Месячная стоимость'
+                  x: '20'
+                  width: '4'
+                  height: '4'
+                  fields:
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: 'REG.RU CLOUD'
+                        key: rrc.monthly_cost
+                - type: problems
+                  name: 'Проблемы'
+                  'y': '4'
+                  width: '24'
+                  height: '5'
+                  fields:
+                    - type: INTEGER
+                      name: show_lines
+                      value: '10'
+                    - type: INTEGER
+                      name: sort_triggers
+                      value: '4'
+                    - type: STRING
+                      name: tags.tag.0
+                      value: service
+                    - type: INTEGER
+                      name: tags.operator.0
+                      value: '1'
+                    - type: STRING
+                      name: tags.value.0
+                      value: reg.ru-cloud
+                - type: dataover
+                  name: 'VPS: Статусы и конфигурация'
+                  'y': '9'
+                  width: '24'
+                  height: '6'
+                  fields:
+                    - type: STRING
+                      name: tags.tag.0
+                      value: component
+                    - type: INTEGER
+                      name: tags.operator.0
+                      value: '1'
+                    - type: STRING
+                      name: tags.value.0
+                      value: reglet
+                - type: graph
+                  name: 'Тренд баланса'
+                  'y': '15'
+                  width: '12'
+                  height: '5'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: 'REG.RU CLOUD'
+                        name: 'RRC: Balance Trend'
+                - type: graph
+                  name: 'Дней до отключения'
+                  x: '12'
+                  'y': '15'
+                  width: '12'
+                  height: '5'
+                  fields:
+                    - type: GRAPH
+                      name: graphid
+                      value:
+                        host: 'REG.RU CLOUD'
+                        name: 'RRC: Days Left Trend'
+            - name: 'Resources'
+              widgets:
+                - type: item
+                  name: 'Всего vCPUs'
+                  width: '6'
+                  height: '3'
+                  fields:
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: 'REG.RU CLOUD'
+                        key: rrc.reglets.vcpus.total
+                - type: item
+                  name: 'Всего RAM'
+                  x: '6'
+                  width: '6'
+                  height: '3'
+                  fields:
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: 'REG.RU CLOUD'
+                        key: rrc.reglets.memory.total
+                - type: item
+                  name: 'Всего Disk'
+                  x: '12'
+                  width: '6'
+                  height: '3'
+                  fields:
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: 'REG.RU CLOUD'
+                        key: rrc.reglets.disk.total
+                - type: item
+                  name: 'Снапшотов'
+                  x: '18'
+                  width: '3'
+                  height: '3'
+                  fields:
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: 'REG.RU CLOUD'
+                        key: rrc.snapshots.count
+                - type: item
+                  name: 'VPC сетей'
+                  x: '21'
+                  width: '3'
+                  height: '3'
+                  fields:
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: 'REG.RU CLOUD'
+                        key: rrc.vpcs.count
+                - type: item
+                  name: 'IPv4 адресов'
+                  'y': '3'
+                  width: '6'
+                  height: '3'
+                  fields:
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: 'REG.RU CLOUD'
+                        key: rrc.ips.ipv4.count
+                - type: item
+                  name: 'IPv6 адресов'
+                  x: '6'
+                  'y': '3'
+                  width: '6'
+                  height: '3'
+                  fields:
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: 'REG.RU CLOUD'
+                        key: rrc.ips.ipv6.count
+                - type: item
+                  name: 'Размер снапшотов'
+                  x: '12'
+                  'y': '3'
+                  width: '6'
+                  height: '3'
+                  fields:
+                    - type: ITEM
+                      name: itemid
+                      value:
+                        host: 'REG.RU CLOUD'
+                        key: rrc.snapshots.size.total
+      # ============================================
+      # TAGS
+      # ============================================
+      tags:
+        - tag: service
+          value: reg.ru-cloud
+        - tag: vendor
+          value: reg.ru
+        - tag: scope
+          value: cloud
+      # ============================================
+      # VALUEMAPS
+      # ============================================
+      valuemaps:
+        - uuid: fa7cb6600774475da096411291cc6ec8
+          name: 'CloudVPS Status'
+          mappings:
+            - value: active
+              newvalue: Active
+            - value: 'off'
+              newvalue: 'Off'
+            - value: new
+              newvalue: New
+            - value: archive
+              newvalue: Archive
+            - value: stopped
+              newvalue: Stopped
+        - uuid: b48d8aea5b904ed1893bc9d9c994a886
+          name: 'Boolean Yes/No'
+          mappings:
+            - value: '0'
+              newvalue: 'No'
+            - value: '1'
+              newvalue: 'Yes'
+  # ============================================
+  # GLOBAL GRAPHS
+  # ============================================
+  graphs:
+    - uuid: b27c0239285944fd8e12f92b2d69389b
+      name: 'RRC: Balance Trend'
+      graph_items:
+        - color: 1A7C11
+          item:
+            host: 'REG.RU CLOUD'
+            key: rrc.balance
+        - sortorder: '1'
+          color: F63131
+          item:
+            host: 'REG.RU CLOUD'
+            key: rrc.monthly_cost
+    - uuid: 8d91e68d817840c391a30cdf8fe51397
+      name: 'RRC: Days Left Trend'
+      graph_items:
+        - color: 2774A4
+          item:
+            host: 'REG.RU CLOUD'
+            key: rrc.days_left
+    - uuid: 73692a40bf0c4b13a630fc1567ec8e38
+      name: 'RRC: Resources Overview'
+      graph_items:
+        - color: 1A7C11
+          item:
+            host: 'REG.RU CLOUD'
+            key: rrc.reglets.total
+        - sortorder: '1'
+          color: 2774A4
+          item:
+            host: 'REG.RU CLOUD'
+            key: rrc.reglets.active
+        - sortorder: '2'
+          color: F63131
+          item:
+            host: 'REG.RU CLOUD'
+            key: rrc.reglets.stopped
+  # ============================================
+  # GLOBAL TRIGGERS
+  # ============================================
+  triggers:
+    - uuid: 37c74cbd7ea74811a6182917d7fcbcbc
+      expression: 'last(/REG.RU CLOUD/rrc.balance)<last(/REG.RU CLOUD/rrc.monthly_cost)'
+      name: 'RRC: Balance insufficient for month'
+      event_name: 'REG.RU CLOUD: Баланса ({ITEM.VALUE1}) недостаточно для месяца работы ({ITEM.VALUE2})'
+      priority: AVERAGE
+      manual_close: 'YES'
+      dependencies:
+        - name: 'RRC: Days left critical'
+          expression: 'last(/REG.RU CLOUD/rrc.days_left)<{$RRC_DAYSLEFT_HIGH}'
+    - uuid: 0245e8d5f6144a0797cdc357cf597d56
+      expression: 'last(/REG.RU CLOUD/rrc.reglets.active)<last(/REG.RU CLOUD/rrc.reglets.total)'
+      name: 'RRC: Some VPS are not active'
+      event_name: 'REG.RU CLOUD: Не все VPS активны ({ITEM.VALUE1} из {ITEM.VALUE2})'
+      priority: WARNING
+      description: 'Количество активных VPS меньше общего количества'
+      manual_close: 'YES'
