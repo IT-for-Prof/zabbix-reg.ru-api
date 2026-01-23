@@ -12,7 +12,7 @@ zabbix_export:
       description: 'Template for monitoring REG.RU CloudVPS: balance, VPS servers, snapshots, IPs, VPCs. Auto-discovery of all resources. API v1. itforprof.com by Konstantin Tyutyunnik'
       vendor:
         name: itforprof.com
-        version: 1.1.0
+        version: 1.2.0
       groups:
         - name: REG.RU
       items:
@@ -771,11 +771,11 @@ zabbix_export:
                       "{#REGLET_ID}": String(r.id || ""),
                       "{#REGLET_NAME}": String(r.name || ""),
                       "{#REGLET_STATUS}": String(r.status || ""),
-                      "{#REGLET_REGION}": String(r.region ? r.region.slug : ""),
+                      "{#REGLET_REGION}": String(r.region_slug || ""),
                       "{#REGLET_VCPUS}": String(r.vcpus || ""),
                       "{#REGLET_MEMORY}": String(r.memory || ""),
                       "{#REGLET_DISK}": String(r.disk || ""),
-                      "{#REGLET_IP}": String(r.ip_address || ""),
+                      "{#REGLET_IP}": String(r.ip || ""),
                       "{#REGLET_IMAGE}": String(r.image ? (r.image.distribution + " " + r.image.name) : "")
                     });
                   }
@@ -900,7 +900,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.reglets[?(@.id=={#REGLET_ID})].ip_address.first()'
+                    - '$.reglets[?(@.id=={#REGLET_ID})].ip.first()'
                   error_handler: CUSTOM_VALUE
                   error_handler_params: ''
               master_item:
@@ -924,7 +924,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.reglets[?(@.id=={#REGLET_ID})].region.slug.first()'
+                    - '$.reglets[?(@.id=={#REGLET_ID})].region_slug.first()'
                   error_handler: CUSTOM_VALUE
                   error_handler_params: ''
               master_item:
@@ -948,7 +948,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.reglets[?(@.id=={#REGLET_ID})].size.price_hourly.first()'
+                    - '$.reglets[?(@.id=={#REGLET_ID})].size.price.first()'
                   error_handler: CUSTOM_VALUE
                   error_handler_params: '0'
               master_item:
@@ -972,7 +972,7 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.reglets[?(@.id=={#REGLET_ID})].size.price_monthly.first()'
+                    - '$.reglets[?(@.id=={#REGLET_ID})].size.price_month.first()'
                   error_handler: CUSTOM_VALUE
                   error_handler_params: '0'
               master_item:
