@@ -8,10 +8,10 @@ zabbix_export:
     - uuid: 7480bcc549af46da9917df244cd75b5f
       template: REG.RU
       name: REG.RU
-      description: 'Template for monitoring REG.RU API balance and status. itforprof.com by Konstantin Tyutyunnik'
+      description: 'Template for monitoring REG.RU API: services expiration, balance, unpaid bills. Auto-discovery of all service types. itforprof.com by Konstantin Tyutyunnik'
       vendor:
-        name: reg.ru
-        version: 1.1.3
+        name: itforprof.com
+        version: 2.0.0
       groups:
         - name: REG.RU
       items:
