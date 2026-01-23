@@ -12,7 +12,7 @@ zabbix_export:
       description: 'Template for monitoring REG.RU CloudVPS: balance, VPS servers, snapshots, IPs, VPCs. Auto-discovery of all resources. API v1. itforprof.com by Konstantin Tyutyunnik'
       vendor:
         name: itforprof.com
-        version: 1.3.0
+        version: 1.4.0
       groups:
         - name: REG.RU
       items:
