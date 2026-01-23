@@ -315,6 +315,145 @@ zabbix_export:
               path: '$.["{#AUTORENEW}"]'
             - lld_macro: '{#STATE}'
               path: '$.["{#STATE}"]'
+          item_prototypes:
+            - uuid: f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f1
+              name: 'Service [{#SERVICE_NAME}]: Type'
+              type: DEPENDENT
+              key: 'rr.service.type[{#SERVICE_ID}]'
+              delay: '0'
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.answer.services[?(@.service_id=="{#SERVICE_ID}")].servtype.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: 'unknown'
+              master_item:
+                key: rr.api.services.list
+              tags:
+                - tag: service
+                  value: reg.ru
+                - tag: scope
+                  value: '{#SERVICE_TYPE}'
+                - tag: service_name
+                  value: '{#SERVICE_NAME}'
+                - tag: component
+                  value: type
+            - uuid: f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f2
+              name: 'Service [{#SERVICE_NAME}]: State'
+              type: DEPENDENT
+              key: 'rr.service.state[{#SERVICE_ID}]'
+              delay: '0'
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.answer.services[?(@.service_id=="{#SERVICE_ID}")].state.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: 'unknown'
+              master_item:
+                key: rr.api.services.list
+              valuemap:
+                name: 'REG.RU Service State'
+              tags:
+                - tag: service
+                  value: reg.ru
+                - tag: scope
+                  value: '{#SERVICE_TYPE}'
+                - tag: service_name
+                  value: '{#SERVICE_NAME}'
+                - tag: component
+                  value: state
+            - uuid: f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f3
+              name: 'Service [{#SERVICE_NAME}]: Expiration Date'
+              type: DEPENDENT
+              key: 'rr.service.expire_date[{#SERVICE_ID}]'
+              delay: '0'
+              history: 90d
+              value_type: TEXT
+              trends: '0'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.answer.services[?(@.service_id=="{#SERVICE_ID}")].expiration_date.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: ''
+              master_item:
+                key: rr.api.services.list
+              tags:
+                - tag: service
+                  value: reg.ru
+                - tag: scope
+                  value: '{#SERVICE_TYPE}'
+                - tag: service_name
+                  value: '{#SERVICE_NAME}'
+                - tag: component
+                  value: expiration
+            - uuid: f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f4
+              name: 'Service [{#SERVICE_NAME}]: Days Until Expiration'
+              type: DEPENDENT
+              key: 'rr.service.days_left[{#SERVICE_ID}]'
+              delay: '0'
+              history: 90d
+              value_type: SIGNED
+              units: 'days'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.answer.services[?(@.service_id=="{#SERVICE_ID}")].expiration_date.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: ''
+                - type: JAVASCRIPT
+                  parameters:
+                    - |
+                      if (!value || value === '') return -9999;
+                      var expireTs = Date.parse(value);
+                      if (isNaN(expireTs)) return -9999;
+                      var now = Date.now();
+                      var days = Math.floor((expireTs - now) / 86400000);
+                      return days;
+              master_item:
+                key: rr.api.services.list
+              tags:
+                - tag: service
+                  value: reg.ru
+                - tag: scope
+                  value: '{#SERVICE_TYPE}'
+                - tag: service_name
+                  value: '{#SERVICE_NAME}'
+                - tag: component
+                  value: expiration
+            - uuid: f6f6f6f6f6f6f6f6f6f6f6f6f6f6f6f5
+              name: 'Service [{#SERVICE_NAME}]: Autorenew'
+              type: DEPENDENT
+              key: 'rr.service.autorenew[{#SERVICE_ID}]'
+              delay: '0'
+              history: 7d
+              value_type: TEXT
+              trends: '0'
+              preprocessing:
+                - type: JSONPATH
+                  parameters:
+                    - '$.answer.services[?(@.service_id=="{#SERVICE_ID}")].autorenew_flag.first()'
+                  error_handler: CUSTOM_VALUE
+                  error_handler_params: 'off'
+              master_item:
+                key: rr.api.services.list
+              valuemap:
+                name: 'REG.RU Autorenew'
+              tags:
+                - tag: service
+                  value: reg.ru
+                - tag: scope
+                  value: '{#SERVICE_TYPE}'
+                - tag: service_name
+                  value: '{#SERVICE_NAME}'
+                - tag: component
+                  value: autorenew
       macros:
         - macro: '{$RR_BALANCE_MINIMAL}'
           value: '200'
