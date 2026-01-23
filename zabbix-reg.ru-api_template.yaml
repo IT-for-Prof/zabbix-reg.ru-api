@@ -11,7 +11,7 @@ zabbix_export:
       description: 'Template for monitoring REG.RU API: services expiration, balance, unpaid bills. Auto-discovery of all service types. itforprof.com by Konstantin Tyutyunnik'
       vendor:
         name: itforprof.com
-        version: 2.1.1
+        version: 2.1.2
       groups:
         - name: REG.RU
       items:
@@ -247,7 +247,7 @@ zabbix_export:
               value: finance
           triggers:
             - uuid: 59c4377debed45ceab7455267203f0b7
-              expression: 'last(/REG.RU/rr-prepay)<{$RR_BALANCE_MINIMAL} and length(last(/REG.RU/rr-currency))>=0'
+              expression: 'last(/REG.RU/rr-prepay)<{$RR_BALANCE_MINIMAL} and (last(/REG.RU/rr-currency)="" or last(/REG.RU/rr-currency)<>"")'
               name: 'REG.RU: Low balance'
               event_name: 'REG.RU: Низкий баланс: {ITEM.VALUE1} {ITEM.VALUE2} (минимум {$RR_BALANCE_MINIMAL})'
               priority: HIGH
