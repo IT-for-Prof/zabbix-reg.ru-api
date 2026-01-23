@@ -454,6 +454,61 @@ zabbix_export:
                   value: '{#SERVICE_NAME}'
                 - tag: component
                   value: autorenew
+          trigger_prototypes:
+            - uuid: g7g7g7g7g7g7g7g7g7g7g7g7g7g7g7g1
+              expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<0'
+              name: 'Service [{#SERVICE_NAME}]: EXPIRED'
+              event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} ИСТЕКЛА (дата: {#EXPIRE_DATE})'
+              priority: DISASTER
+              description: 'Услуга {#SERVICE_NAME} ({#SERVICE_TYPE}) истекла {#EXPIRE_DATE}'
+              tags:
+                - tag: scope
+                  value: expiration
+            - uuid: g7g7g7g7g7g7g7g7g7g7g7g7g7g7g7g2
+              expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>=0 and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<={$RR_EXPIRE_HIGH}'
+              name: 'Service [{#SERVICE_NAME}]: Expires in {ITEM.LASTVALUE} days'
+              event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} истекает через {ITEM.LASTVALUE} дней (дата: {#EXPIRE_DATE})'
+              priority: HIGH
+              description: 'Услуга {#SERVICE_NAME} ({#SERVICE_TYPE}) истекает менее чем через {$RR_EXPIRE_HIGH} дней'
+              dependencies:
+                - name: 'Service [{#SERVICE_NAME}]: EXPIRED'
+                  expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<0'
+              tags:
+                - tag: scope
+                  value: expiration
+            - uuid: g7g7g7g7g7g7g7g7g7g7g7g7g7g7g7g3
+              expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>{$RR_EXPIRE_HIGH} and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<={$RR_EXPIRE_WARNING}'
+              name: 'Service [{#SERVICE_NAME}]: Expires in {ITEM.LASTVALUE} days'
+              event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} истекает через {ITEM.LASTVALUE} дней (дата: {#EXPIRE_DATE})'
+              priority: WARNING
+              description: 'Услуга {#SERVICE_NAME} ({#SERVICE_TYPE}) истекает менее чем через {$RR_EXPIRE_WARNING} дней'
+              dependencies:
+                - name: 'Service [{#SERVICE_NAME}]: Expires in {ITEM.LASTVALUE} days'
+                  expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>=0 and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<={$RR_EXPIRE_HIGH}'
+              tags:
+                - tag: scope
+                  value: expiration
+            - uuid: g7g7g7g7g7g7g7g7g7g7g7g7g7g7g7g4
+              expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>{$RR_EXPIRE_WARNING} and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<={$RR_EXPIRE_INFO}'
+              name: 'Service [{#SERVICE_NAME}]: Expires in {ITEM.LASTVALUE} days'
+              event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} истекает через {ITEM.LASTVALUE} дней (дата: {#EXPIRE_DATE})'
+              priority: INFO
+              description: 'Услуга {#SERVICE_NAME} ({#SERVICE_TYPE}) истекает менее чем через {$RR_EXPIRE_INFO} дней'
+              dependencies:
+                - name: 'Service [{#SERVICE_NAME}]: Expires in {ITEM.LASTVALUE} days'
+                  expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>{$RR_EXPIRE_HIGH} and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<={$RR_EXPIRE_WARNING}'
+              tags:
+                - tag: scope
+                  value: expiration
+            - uuid: g7g7g7g7g7g7g7g7g7g7g7g7g7g7g7g5
+              expression: 'last(/REG.RU/rr.service.autorenew[{#SERVICE_ID}])="off"'
+              name: 'Service [{#SERVICE_NAME}]: Autorenew DISABLED'
+              event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} — автопродление ВЫКЛЮЧЕНО'
+              priority: WARNING
+              description: 'Автопродление отключено для услуги {#SERVICE_NAME} ({#SERVICE_TYPE}). Требуется ручное продление.'
+              tags:
+                - tag: scope
+                  value: autorenew
       macros:
         - macro: '{$RR_BALANCE_MINIMAL}'
           value: '200'
