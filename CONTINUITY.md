@@ -16,8 +16,8 @@ Fix `*UNKNOWN*` in trigger name/event name in `zabbix-reg.ru-api_template.yaml` 
 - Fixed trigger expression to correctly check 4 distinct consecutive values (`last`, `#2`, `#3`, `#4`).
 
 ## State
-- Done: Fixed `*UNKNOWN*` issue in `rr-api-status` and `rr-prepay` triggers.
-- Now: Version 1.1.3 released.
+- Done: Version 2.0.0 released with LLD auto-discovery.
+- Now: None.
 - Next: None.
 
 ## Open questions
@@ -27,6 +27,18 @@ Fix `*UNKNOWN*` in trigger name/event name in `zabbix-reg.ru-api_template.yaml` 
 - `zabbix-reg.ru-api_template.yaml`
 
 ## Changelog
+### [2.0.0] - 2026-01-23
+- Major: Добавлен LLD для автообнаружения всех типов услуг REG.RU
+- Добавлены item prototypes: type, state, expire_date, days_left, autorenew
+- Добавлены trigger prototypes для контроля сроков истечения (4 уровня)
+- Добавлен master item для service/get_list
+- Добавлен master item для bill/get_not_payed
+- Добавлены items для подсчёта неоплаченных счетов
+- Добавлены макросы для порогов: RR_EXPIRE_INFO/WARNING/HIGH
+- Добавлены value maps для статуса услуг и автопродления
+- Обновлён dashboard с новыми виджетами
+- Добавлен graph prototype для дней до истечения
+
 ### [1.1.3] - 2025-12-31
 - Fixed `*UNKNOWN*` in trigger name and event name by adding `rr-api-error-text` and `rr-currency` to trigger expressions and using `{ITEM.VALUE<N>}`.
 - Fixed trigger expression for `rr-api-status` to correctly check 4 consecutive failures (changed `#1` to `#4`).
