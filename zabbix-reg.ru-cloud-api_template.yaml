@@ -1246,11 +1246,21 @@ zabbix_export:
                 - tag: scope
                   value: backup
             - uuid: 5cc1bfcce1d24a408d94eee39804c5fe
-              expression: 'last(/REG.RU CLOUD/rrc.reglet.is_blocked[{#REGLET_ID}])=1'
-              name: 'VPS [{#REGLET_NAME}]: BLOCKED by provider'
-              event_name: 'VPS {#REGLET_NAME} ({#REGLET_IP}): ЗАБЛОКИРОВАН провайдером!'
+              expression: 'last(/REG.RU CLOUD/rrc.reglet.status[{#REGLET_ID}])="suspended"'
+              name: 'VPS [{#REGLET_NAME}]: SUSPENDED (insufficient funds)'
+              event_name: 'VPS {#REGLET_NAME} ({#REGLET_IP}): ПРИОСТАНОВЛЕН (недостаточно средств)!'
               priority: HIGH
-              description: 'VPS {#REGLET_NAME} заблокирован провайдером. Проверьте причину в панели управления.'
+              description: 'VPS {#REGLET_NAME} приостановлен из-за недостатка средств на балансе. Пополните баланс для восстановления работы.'
+              tags:
+                - tag: scope
+                  value: billing
+            - uuid: a1b2c3d4e5f6789012345678901234ab
+              expression: 'last(/REG.RU CLOUD/rrc.reglet.is_blocked[{#REGLET_ID}])=1'
+              name: 'VPS [{#REGLET_NAME}]: Has network restrictions'
+              event_name: 'VPS {#REGLET_NAME}: Есть сетевые ограничения (is_blocked=1)'
+              priority: INFO
+              description: 'На VPS {#REGLET_NAME} установлен флаг is_blocked=1. Обычно это означает блокировку SMTP портов (25, 465). Сервер при этом работает нормально.'
+              manual_close: 'YES'
               tags:
                 - tag: scope
                   value: security
