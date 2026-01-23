@@ -203,7 +203,30 @@ API токен получается в [панели CloudVPS](https://cloudvps.
 
 ## Changelog
 
-См. [CONTINUITY.md](CONTINUITY.md)
+### REG.RU CLOUD
+
+**1.2.0** (2026-01-23)
+- fix: Исправлены JSONPath пути для VPS данных (`ip`, `region_slug`, `size.price`, `size.price_month`)
+
+**1.1.0** (2026-01-23)
+- feat: Улучшен триггер Backups с детектом изменения состояния (change detection)
+  - `Backups were disabled` (WARNING) — срабатывает при отключении бэкапов
+  - `Backups not configured` (INFO) — информирует о изначально выключенных бэкапах
+
+**1.0.0** (2026-01-23)
+- Первоначальный релиз
+- 5 Master HTTP Agent items (balance_data, reglets, snapshots, ips, vpcs)
+- 18 Dependent items для billing, VPS summary, resources
+- 3 Discovery rules (VPS, Snapshots, VPCs)
+- 17 Triggers + 3 Trigger prototypes
+- Dashboard с 2 страницами
+
+### REG.RU
+
+**2.1.2**
+- fix: Исправлен *UNKNOWN* в триггерах
+
+См. также [CONTINUITY.md](CONTINUITY.md)
 
 ## Поддержка
 
