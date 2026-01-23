@@ -12,7 +12,7 @@ zabbix_export:
       description: 'Template for monitoring REG.RU CloudVPS: balance, VPS servers, snapshots, IPs, VPCs. Auto-discovery of all resources. API v1. itforprof.com by Konstantin Tyutyunnik'
       vendor:
         name: itforprof.com
-        version: 1.0.0
+        version: 1.1.0
       groups:
         - name: REG.RU
       items:
@@ -1075,11 +1075,21 @@ zabbix_export:
                 - tag: scope
                   value: availability
             - uuid: b663731e0fcb481e976de4415c53236b
-              expression: 'last(/REG.RU CLOUD/rrc.reglet.backups[{#REGLET_ID}])=0'
-              name: 'VPS [{#REGLET_NAME}]: Backups disabled'
-              event_name: 'VPS {#REGLET_NAME}: Бэкапы отключены'
+              expression: 'last(/REG.RU CLOUD/rrc.reglet.backups[{#REGLET_ID}])=0 and change(/REG.RU CLOUD/rrc.reglet.backups[{#REGLET_ID}])=1'
+              name: 'VPS [{#REGLET_NAME}]: Backups were disabled'
+              event_name: 'VPS {#REGLET_NAME}: Бэкапы были ОТКЛЮЧЕНЫ!'
+              priority: WARNING
+              description: 'На VPS {#REGLET_NAME} бэкапы были отключены (были включены, теперь выключены)'
+              manual_close: 'YES'
+              tags:
+                - tag: scope
+                  value: backup
+            - uuid: 7d2f8e4a1b3c4d6e9f0a2b4c6d8e0f1a
+              expression: 'last(/REG.RU CLOUD/rrc.reglet.backups[{#REGLET_ID}])=0 and change(/REG.RU CLOUD/rrc.reglet.backups[{#REGLET_ID}])=0'
+              name: 'VPS [{#REGLET_NAME}]: Backups not configured'
+              event_name: 'VPS {#REGLET_NAME}: Бэкапы не настроены'
               priority: INFO
-              description: 'На VPS {#REGLET_NAME} не включены автоматические бэкапы'
+              description: 'На VPS {#REGLET_NAME} не включены автоматические бэкапы (изначально или длительное время)'
               manual_close: 'YES'
               tags:
                 - tag: scope

@@ -12,7 +12,7 @@
 | Шаблон | Версия | API | Назначение |
 |--------|--------|-----|------------|
 | **REG.RU** | 2.1.2 | api.reg.ru | Услуги REG.RU (домены, SSL, хостинг и др.) |
-| **REG.RU CLOUD** | 1.0.0 | api.cloudvps.reg.ru | CloudVPS серверы, баланс, снапшоты |
+| **REG.RU CLOUD** | 1.1.0 | api.cloudvps.reg.ru | CloudVPS серверы, баланс, снапшоты |
 
 > **Важно:** Шаблоны используют разные API с разной аутентификацией. Если у вас есть и услуги REG.RU, и CloudVPS — подключайте оба шаблона.
 
@@ -147,7 +147,7 @@ API токен получается в [панели CloudVPS](https://cloudvps.
 
 | Discovery | Item Prototypes | Trigger Prototypes |
 |-----------|-----------------|-------------------|
-| VPS Discovery | 11 (status, vcpus, memory, disk, ip, region, prices, backups, image, created) | 2 (not active, backups disabled) |
+| VPS Discovery | 11 (status, vcpus, memory, disk, ip, region, prices, backups, image, created) | 3 (not active, backups disabled, backups not configured) |
 | Snapshots Discovery | 2 (size, created) | — |
 | VPC Discovery | 1 (region) | — |
 
@@ -162,12 +162,13 @@ API токен получается в [панели CloudVPS](https://cloudvps.
 | **VPS** | 2 | WARNING, INFO |
 | **Snapshots** | 2 | WARNING |
 
-### Trigger Prototypes (2)
+### Trigger Prototypes (3)
 
-| Trigger | Severity |
-|---------|----------|
-| VPS [{#REGLET_NAME}]: Not active | HIGH |
-| VPS [{#REGLET_NAME}]: Backups disabled | INFO |
+| Trigger | Severity | Описание |
+|---------|----------|----------|
+| VPS [{#REGLET_NAME}]: Not active | HIGH | VPS не активен |
+| VPS [{#REGLET_NAME}]: Backups were disabled | WARNING | Бэкапы были отключены (change detection) |
+| VPS [{#REGLET_NAME}]: Backups not configured | INFO | Бэкапы не настроены изначально |
 
 ### Dashboard (2 страницы)
 
