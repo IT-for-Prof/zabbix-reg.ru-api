@@ -164,6 +164,21 @@ zabbix_export:
         - macro: '{$RR_USERNAME}'
           value: user@mail.arpa
           description: 'reg.ru account e-mail'
+        - macro: '{$RR_EXPIRE_INFO}'
+          value: '30'
+          description: 'Дней до истечения — уровень Information'
+        - macro: '{$RR_EXPIRE_WARNING}'
+          value: '14'
+          description: 'Дней до истечения — уровень Warning'
+        - macro: '{$RR_EXPIRE_HIGH}'
+          value: '7'
+          description: 'Дней до истечения — уровень High'
+        - macro: '{$RR_API_TIMEOUT}'
+          value: '30s'
+          description: 'Таймаут HTTP запросов к API'
+        - macro: '{$RR_UPDATE_INTERVAL}'
+          value: '1h'
+          description: 'Интервал опроса API'
       dashboards:
         - uuid: a6258dacfb694080bb8d41b5ca1540dd
           name: 'REG.RU API Overview'
