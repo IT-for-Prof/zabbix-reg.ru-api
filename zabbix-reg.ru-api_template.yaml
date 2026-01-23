@@ -34,6 +34,13 @@ zabbix_export:
               value: raw
             - tag: component
               value: services
+          triggers:
+            - uuid: a13768c20df845428433dfd455d60430
+              expression: 'nodata(/REG.RU/rr.api.services.list,3h)=1'
+              name: 'REG.RU: No data from services API'
+              event_name: 'REG.RU: Нет данных от API service/get_list более 3 часов'
+              priority: AVERAGE
+              description: 'API service/get_list не отвечает или нет данных'
         - uuid: b31b53bec4054351a4c2b51aac25eb0e
           name: 'REG.RU: Unpaid Bills Raw'
           type: HTTP_AGENT
@@ -53,6 +60,13 @@ zabbix_export:
               value: raw
             - tag: component
               value: billing
+          triggers:
+            - uuid: 89f1a7a0f3464d0cab2aa72c5dec4af8
+              expression: 'nodata(/REG.RU/rr.api.bills.unpaid,3h)=1'
+              name: 'REG.RU: No data from bills API'
+              event_name: 'REG.RU: Нет данных от API bill/get_not_payed более 3 часов'
+              priority: AVERAGE
+              description: 'API bill/get_not_payed не отвечает или нет данных'
         - uuid: 8d72d6b9bfc64ab0949cac32b561418e
           name: 'REG.RU: Unpaid Bills Count'
           type: DEPENDENT
@@ -158,9 +172,10 @@ zabbix_export:
           triggers:
             - uuid: 907793349e7e4a6785698a4fd38c418b
               expression: 'last(/REG.RU/rr-api-status)<>"success" and last(/REG.RU/rr-api-status,#2)<>"success" and last(/REG.RU/rr-api-status,#3)<>"success" and last(/REG.RU/rr-api-status,#4)<>"success" and length(last(/REG.RU/rr-api-error-text))>=0'
-              name: 'rr-api-status: {ITEM.VALUE5}'
-              event_name: 'REG.RU API error: {ITEM.VALUE5}'
+              name: 'REG.RU: API error (4 consecutive failures)'
+              event_name: 'REG.RU API ошибка: {ITEM.VALUE5}'
               priority: HIGH
+              description: 'API REG.RU возвращает ошибки 4 раза подряд. Текст ошибки показан в event_name.'
         - uuid: d28e92570e86477f835c847e8853cc17
           name: rr-api-error-text
           type: DEPENDENT
@@ -195,23 +210,27 @@ zabbix_export:
           name: rr-api-user-get_balance
           type: HTTP_AGENT
           key: rr-api-user-get_balance
-          delay: 1h
+          delay: '{$RR_UPDATE_INTERVAL}'
           history: 1d
           value_type: TEXT
           trends: '0'
           status_codes: '200,400,401,403,404,500'
-          timeout: 30s
+          timeout: '{$RR_API_TIMEOUT}'
           url: 'https://api.reg.ru/api/regru2/user/get_balance'
-          posts: 'username={$RR_USERNAME}&password={$RR_PASSWORD}'
+          posts: 'username={$RR_USERNAME}&password={$RR_PASSWORD}&output_format=json'
           request_method: POST
           tags:
             - tag: scope
               value: raw
+            - tag: component
+              value: balance
           triggers:
             - uuid: cf13b2361d904f64859914177ef6ff89
               expression: 'nodata(/REG.RU/rr-api-user-get_balance,3h)=1'
-              name: 'Failed to fetch or no data'
+              name: 'REG.RU: No data from balance API'
+              event_name: 'REG.RU: Нет данных от API user/get_balance более 3 часов'
               priority: AVERAGE
+              description: 'API user/get_balance не отвечает или нет данных'
         - uuid: 3f5791dcb89d4432bb97474ce041228f
           name: rr-prepay
           type: DEPENDENT
