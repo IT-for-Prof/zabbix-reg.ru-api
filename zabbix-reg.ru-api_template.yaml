@@ -11,7 +11,7 @@ zabbix_export:
       description: 'Template for monitoring REG.RU API: services expiration, balance, unpaid bills. Auto-discovery of all service types. itforprof.com by Konstantin Tyutyunnik'
       vendor:
         name: itforprof.com
-        version: 2.0.0
+        version: 2.1.0
       groups:
         - name: REG.RU
       items:
@@ -292,7 +292,7 @@ zabbix_export:
           key: rr.discovery.services
           delay: '0'
           lifetime: 7d
-          description: 'Автообнаружение всех услуг REG.RU (домены, хостинг, VPS, SSL и др.)'
+          description: 'Автообнаружение услуг REG.RU. Исключаемые типы настраиваются через макрос {$RR_EXCLUDE_TYPES}.'
           master_item:
             key: rr.api.services.list
           preprocessing:
@@ -313,7 +313,6 @@ zabbix_export:
                       "{#SERVICE_TYPE}": String(s.servtype || "unknown"),
                       "{#SERVICE_NAME}": String(s.dname || s.subtype || s.service_id || ""),
                       "{#EXPIRE_DATE}": String(s.expiration_date || ""),
-                      "{#AUTORENEW}": String(s.autorenew_flag || s.autorenew || "off"),
                       "{#STATE}": String(s.state || "")
                     });
                   }
@@ -327,13 +326,17 @@ zabbix_export:
               path: '$.["{#SERVICE_NAME}"]'
             - lld_macro: '{#EXPIRE_DATE}'
               path: '$.["{#EXPIRE_DATE}"]'
-            - lld_macro: '{#AUTORENEW}'
-              path: '$.["{#AUTORENEW}"]'
             - lld_macro: '{#STATE}'
               path: '$.["{#STATE}"]'
+          filter:
+            evaltype: AND
+            conditions:
+              - macro: '{#SERVICE_TYPE}'
+                value: '{$RR_EXCLUDE_TYPES}'
+                operator: NOT_MATCHES_REGEX
           item_prototypes:
             - uuid: 4aee889f9c574542b43cbae44ed5b0d1
-              name: 'Service [{#SERVICE_NAME}]: Type'
+              name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Type'
               type: DEPENDENT
               key: 'rr.service.type[{#SERVICE_ID}]'
               delay: '0'
@@ -358,7 +361,7 @@ zabbix_export:
                 - tag: component
                   value: type
             - uuid: 0ae40dbf4e4148a08b6cb72e182b5328
-              name: 'Service [{#SERVICE_NAME}]: State'
+              name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: State'
               type: DEPENDENT
               key: 'rr.service.state[{#SERVICE_ID}]'
               delay: '0'
@@ -385,7 +388,7 @@ zabbix_export:
                 - tag: component
                   value: state
             - uuid: f1fb555cb6f947e9b6a392448fbaeee0
-              name: 'Service [{#SERVICE_NAME}]: Expiration Date'
+              name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expiration Date'
               type: DEPENDENT
               key: 'rr.service.expire_date[{#SERVICE_ID}]'
               delay: '0'
@@ -410,7 +413,7 @@ zabbix_export:
                 - tag: component
                   value: expiration
             - uuid: fa24bd3a2c2745699e04fea8d6274afd
-              name: 'Service [{#SERVICE_NAME}]: Days Until Expiration'
+              name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Days Until Expiration'
               type: DEPENDENT
               key: 'rr.service.days_left[{#SERVICE_ID}]'
               delay: '0'
@@ -426,9 +429,10 @@ zabbix_export:
                 - type: JAVASCRIPT
                   parameters:
                     - |
-                      if (!value || value === '') return -9999;
+                      // Услуги без срока истечения (VPS, etc.) возвращают 99999
+                      if (!value || value === '' || value === '0000-00-00') return 99999;
                       var expireTs = Date.parse(value);
-                      if (isNaN(expireTs)) return -9999;
+                      if (isNaN(expireTs)) return 99999;
                       var now = Date.now();
                       var days = Math.floor((expireTs - now) / 86400000);
                       return days;
@@ -443,37 +447,10 @@ zabbix_export:
                   value: '{#SERVICE_NAME}'
                 - tag: component
                   value: expiration
-            - uuid: 39a6b5390b1b4c0d9d31046d5c1ce75c
-              name: 'Service [{#SERVICE_NAME}]: Autorenew'
-              type: DEPENDENT
-              key: 'rr.service.autorenew[{#SERVICE_ID}]'
-              delay: '0'
-              history: 7d
-              value_type: TEXT
-              trends: '0'
-              preprocessing:
-                - type: JSONPATH
-                  parameters:
-                    - '$.answer.services[?(@.service_id=="{#SERVICE_ID}")].autorenew_flag.first()'
-                  error_handler: CUSTOM_VALUE
-                  error_handler_params: 'off'
-              master_item:
-                key: rr.api.services.list
-              valuemap:
-                name: 'REG.RU Autorenew'
-              tags:
-                - tag: service
-                  value: reg.ru
-                - tag: scope
-                  value: '{#SERVICE_TYPE}'
-                - tag: service_name
-                  value: '{#SERVICE_NAME}'
-                - tag: component
-                  value: autorenew
           trigger_prototypes:
             - uuid: ce4066d537b84bfca2d49b32ce914303
-              expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<0'
-              name: 'Service [{#SERVICE_NAME}]: EXPIRED'
+              expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<0 and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>-99998'
+              name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: EXPIRED'
               event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} ИСТЕКЛА (дата: {#EXPIRE_DATE})'
               priority: DISASTER
               description: 'Услуга {#SERVICE_NAME} ({#SERVICE_TYPE}) истекла {#EXPIRE_DATE}'
@@ -482,52 +459,43 @@ zabbix_export:
                   value: expiration
             - uuid: e73c1927af604e37bb1ca463ab39492d
               expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>=0 and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<={$RR_EXPIRE_HIGH}'
-              name: 'Service [{#SERVICE_NAME}]: Expires in {ITEM.LASTVALUE} days'
+              name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expires in {ITEM.LASTVALUE1}'
               event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} истекает через {ITEM.LASTVALUE} дней (дата: {#EXPIRE_DATE})'
               priority: HIGH
               description: 'Услуга {#SERVICE_NAME} ({#SERVICE_TYPE}) истекает менее чем через {$RR_EXPIRE_HIGH} дней'
               dependencies:
-                - name: 'Service [{#SERVICE_NAME}]: EXPIRED'
-                  expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<0'
+                - name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: EXPIRED'
+                  expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<0 and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>-99998'
               tags:
                 - tag: scope
                   value: expiration
             - uuid: 8fcaa357804d46feb414781d8b5488ea
               expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>{$RR_EXPIRE_HIGH} and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<={$RR_EXPIRE_WARNING}'
-              name: 'Service [{#SERVICE_NAME}]: Expires in {ITEM.LASTVALUE} days'
+              name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expires in {ITEM.LASTVALUE1}'
               event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} истекает через {ITEM.LASTVALUE} дней (дата: {#EXPIRE_DATE})'
               priority: WARNING
               description: 'Услуга {#SERVICE_NAME} ({#SERVICE_TYPE}) истекает менее чем через {$RR_EXPIRE_WARNING} дней'
               dependencies:
-                - name: 'Service [{#SERVICE_NAME}]: Expires in {ITEM.LASTVALUE} days'
+                - name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expires in {ITEM.LASTVALUE1}'
                   expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>=0 and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<={$RR_EXPIRE_HIGH}'
               tags:
                 - tag: scope
                   value: expiration
             - uuid: f350d56bc64e40dba1e8b2f97d0a8892
               expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>{$RR_EXPIRE_WARNING} and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<={$RR_EXPIRE_INFO}'
-              name: 'Service [{#SERVICE_NAME}]: Expires in {ITEM.LASTVALUE} days'
+              name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expires in {ITEM.LASTVALUE1}'
               event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} истекает через {ITEM.LASTVALUE} дней (дата: {#EXPIRE_DATE})'
               priority: INFO
               description: 'Услуга {#SERVICE_NAME} ({#SERVICE_TYPE}) истекает менее чем через {$RR_EXPIRE_INFO} дней'
               dependencies:
-                - name: 'Service [{#SERVICE_NAME}]: Expires in {ITEM.LASTVALUE} days'
+                - name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expires in {ITEM.LASTVALUE1}'
                   expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>{$RR_EXPIRE_HIGH} and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<={$RR_EXPIRE_WARNING}'
               tags:
                 - tag: scope
                   value: expiration
-            - uuid: dda8b1b6f3b64699af275bfcec290e0d
-              expression: 'last(/REG.RU/rr.service.autorenew[{#SERVICE_ID}])="off"'
-              name: 'Service [{#SERVICE_NAME}]: Autorenew DISABLED'
-              event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} — автопродление ВЫКЛЮЧЕНО'
-              priority: WARNING
-              description: 'Автопродление отключено для услуги {#SERVICE_NAME} ({#SERVICE_TYPE}). Требуется ручное продление.'
-              tags:
-                - tag: scope
-                  value: autorenew
           graph_prototypes:
             - uuid: 8105d4c30b78481b89b1430030f5f749
-              name: 'Service [{#SERVICE_NAME}]: Days until expiration'
+              name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Days until expiration'
               graph_items:
                 - color: 1A7C11
                   item:
@@ -561,6 +529,9 @@ zabbix_export:
         - macro: '{$RR_UPDATE_INTERVAL}'
           value: '1h'
           description: 'Интервал опроса API'
+        - macro: '{$RR_EXCLUDE_TYPES}'
+          value: '^(srv_parking)$'
+          description: 'Regex для исключения типов услуг из LLD. Примеры: ^srv_parking$ или ^(srv_parking|srv_hosting)$'
       dashboards:
         - uuid: a6258dacfb694080bb8d41b5ca1540dd
           name: 'REG.RU Overview'
@@ -569,7 +540,7 @@ zabbix_export:
               widgets:
                 - type: item
                   name: 'Баланс'
-                  width: '6'
+                  width: '4'
                   height: '3'
                   fields:
                     - type: ITEM
@@ -588,8 +559,8 @@ zabbix_export:
                       value: '4'
                 - type: item
                   name: 'API Статус'
-                  x: '6'
-                  width: '6'
+                  x: '4'
+                  width: '4'
                   height: '3'
                   fields:
                     - type: ITEM
@@ -598,21 +569,9 @@ zabbix_export:
                         host: REG.RU
                         key: rr-api-status
                 - type: item
-                  name: 'Неоплаченных счетов'
-                  'y': '3'
-                  width: '6'
-                  height: '3'
-                  fields:
-                    - type: ITEM
-                      name: itemid
-                      value:
-                        host: REG.RU
-                        key: rr.bills.unpaid.count
-                - type: item
                   name: 'Всего услуг'
-                  x: '6'
-                  'y': '3'
-                  width: '6'
+                  x: '8'
+                  width: '4'
                   height: '3'
                   fields:
                     - type: ITEM
@@ -620,9 +579,45 @@ zabbix_export:
                       value:
                         host: REG.RU
                         key: rr.services.total
+                - type: problems
+                  name: 'Проблемы'
+                  'y': '3'
+                  width: '12'
+                  height: '4'
+                  fields:
+                    - type: INTEGER
+                      name: show_lines
+                      value: '10'
+                    - type: INTEGER
+                      name: sort_triggers
+                      value: '4'
+                    - type: STRING
+                      name: tags.tag.0
+                      value: service
+                    - type: INTEGER
+                      name: tags.operator.0
+                      value: '1'
+                    - type: STRING
+                      name: tags.value.0
+                      value: reg.ru
+                - type: dataover
+                  name: 'Услуги: сроки истечения'
+                  'y': '7'
+                  width: '12'
+                  height: '6'
+                  fields:
+                    - type: STRING
+                      name: tags.tag.0
+                      value: component
+                    - type: INTEGER
+                      name: tags.operator.0
+                      value: '1'
+                    - type: STRING
+                      name: tags.value.0
+                      value: expiration
                 - type: graph
                   name: 'Тренд баланса'
-                  'y': '6'
+                  'y': '13'
                   width: '12'
                   height: '5'
                   fields:
@@ -650,13 +645,6 @@ zabbix_export:
               newvalue: Suspended
             - value: W
               newvalue: Waiting
-        - uuid: edc6adfd94764f40a6ef4ba5d2360c4c
-          name: 'REG.RU Autorenew'
-          mappings:
-            - value: 'on'
-              newvalue: Enabled
-            - value: 'off'
-              newvalue: Disabled
   graphs:
     - uuid: b27c0239285944fd8e12f92b2d69389a
       name: 'REG.RU: Funds'

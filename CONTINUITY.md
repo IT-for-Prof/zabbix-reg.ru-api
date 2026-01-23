@@ -27,6 +27,36 @@ Fix `*UNKNOWN*` in trigger name/event name in `zabbix-reg.ru-api_template.yaml` 
 - `zabbix-reg.ru-api_template.yaml`
 
 ## Changelog
+### [2.1.0] - 2026-01-23
+- REMOVED: Autorenew item and trigger (API service/get_list не возвращает эти данные)
+- REMOVED: REG.RU Autorenew value map
+- IMPROVED: Dashboard — добавлены виджеты "Проблемы" и "Услуги: сроки истечения"
+- IMPROVED: Dashboard layout — более компактное размещение
+
+### [2.0.5] - 2026-01-23
+- Made LLD filter configurable via macro {$RR_EXCLUDE_TYPES}
+- Default value: ^(srv_parking)$ — excludes free parking pages
+- Examples: ^(srv_parking|srv_hosting)$ to exclude multiple types
+
+### [2.0.4] - 2026-01-23
+- Added LLD filter to exclude srv_parking (free parking pages) from discovery
+- These services have no practical expiration dates and don't need monitoring
+
+### [2.0.3] - 2026-01-23
+- Fixed "Autorenew DISABLED" trigger to not fire for expired services (days_left < 0)
+
+### [2.0.2] - 2026-01-23
+- Fixed VPS and pay-as-you-go services: days_left=99999 for services without expiration date
+- Fixed EXPIRED trigger to exclude services without expiration (days_left > -99998)
+- Fixed "Autorenew DISABLED" trigger to exclude VPS services (days_left < 99990)
+- Removed duplicate "days" from trigger names (item already has units)
+
+### [2.0.1] - 2026-01-23
+- Fixed duplicate names error when same domain has multiple service types (domain + srv_parking, dom_pp)
+- Added {#SERVICE_TYPE} to all item prototype, trigger prototype, and graph prototype names
+- Format: `Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: <metric>`
+- Fixed trigger dependency names to match updated trigger names
+
 ### [2.0.0] - 2026-01-23
 - Major: Добавлен LLD для автообнаружения всех типов услуг REG.RU
 - Добавлены item prototypes: type, state, expire_date, days_left, autorenew
