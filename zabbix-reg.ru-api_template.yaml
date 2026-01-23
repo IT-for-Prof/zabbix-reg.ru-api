@@ -161,9 +161,6 @@ zabbix_export:
                 - $.result
               error_handler: CUSTOM_VALUE
               error_handler_params: unknown
-            - type: DISCARD_UNCHANGED_HEARTBEAT
-              parameters:
-                - 6h
           master_item:
             key: rr-api-user-get_balance
           tags:
