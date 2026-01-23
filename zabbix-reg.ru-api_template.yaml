@@ -34,6 +34,25 @@ zabbix_export:
               value: raw
             - tag: component
               value: services
+        - uuid: b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2
+          name: 'REG.RU: Unpaid Bills Raw'
+          type: HTTP_AGENT
+          key: rr.api.bills.unpaid
+          delay: '{$RR_UPDATE_INTERVAL}'
+          history: 1d
+          value_type: TEXT
+          trends: '0'
+          status_codes: '200,400,401,403,404,500'
+          timeout: '{$RR_API_TIMEOUT}'
+          url: 'https://api.reg.ru/api/regru2/bill/get_not_payed'
+          posts: 'username={$RR_USERNAME}&password={$RR_PASSWORD}&output_format=json'
+          request_method: POST
+          description: 'Raw JSON response from bill/get_not_payed API'
+          tags:
+            - tag: scope
+              value: raw
+            - tag: component
+              value: billing
         - uuid: d1ee1ea7fa794d19b470f057904acff6
           name: rr-api-status
           type: DEPENDENT
