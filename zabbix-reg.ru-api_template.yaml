@@ -111,6 +111,28 @@ zabbix_export:
           tags:
             - tag: scope
               value: billing
+        - uuid: d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4d4
+          name: 'REG.RU: Services Total Count'
+          type: DEPENDENT
+          key: rr.services.total
+          delay: '0'
+          history: 90d
+          value_type: UNSIGNED
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.answer.services'
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '[]'
+            - type: JSONPATH
+              parameters:
+                - '$.length()'
+          master_item:
+            key: rr.api.services.list
+          description: 'Общее количество услуг в аккаунте'
+          tags:
+            - tag: scope
+              value: inventory
         - uuid: d1ee1ea7fa794d19b470f057904acff6
           name: rr-api-status
           type: DEPENDENT
