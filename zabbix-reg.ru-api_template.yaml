@@ -15,6 +15,25 @@ zabbix_export:
       groups:
         - name: REG.RU
       items:
+        - uuid: a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1
+          name: 'REG.RU: Services List Raw'
+          type: HTTP_AGENT
+          key: rr.api.services.list
+          delay: '{$RR_UPDATE_INTERVAL}'
+          history: 1d
+          value_type: TEXT
+          trends: '0'
+          status_codes: '200,400,401,403,404,500'
+          timeout: '{$RR_API_TIMEOUT}'
+          url: 'https://api.reg.ru/api/regru2/service/get_list'
+          posts: 'username={$RR_USERNAME}&password={$RR_PASSWORD}&output_format=json'
+          request_method: POST
+          description: 'Raw JSON response from service/get_list API'
+          tags:
+            - tag: scope
+              value: raw
+            - tag: component
+              value: services
         - uuid: d1ee1ea7fa794d19b470f057904acff6
           name: rr-api-status
           type: DEPENDENT
