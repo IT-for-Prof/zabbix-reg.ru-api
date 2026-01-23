@@ -53,6 +53,64 @@ zabbix_export:
               value: raw
             - tag: component
               value: billing
+        - uuid: c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3
+          name: 'REG.RU: Unpaid Bills Count'
+          type: DEPENDENT
+          key: rr.bills.unpaid.count
+          delay: '0'
+          history: 90d
+          value_type: UNSIGNED
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.answer.bills'
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '[]'
+            - type: JSONPATH
+              parameters:
+                - '$.length()'
+          master_item:
+            key: rr.api.bills.unpaid
+          description: 'Количество неоплаченных счетов'
+          tags:
+            - tag: scope
+              value: billing
+          triggers:
+            - uuid: c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c4
+              expression: 'last(/REG.RU/rr.bills.unpaid.count)>0'
+              name: 'REG.RU: Unpaid bills'
+              event_name: 'REG.RU: {ITEM.LASTVALUE} неоплаченных счетов'
+              priority: WARNING
+              description: 'Есть неоплаченные счета в аккаунте REG.RU'
+        - uuid: c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4c4
+          name: 'REG.RU: Unpaid Bills Sum'
+          type: DEPENDENT
+          key: rr.bills.unpaid.sum
+          delay: '0'
+          history: 90d
+          value_type: FLOAT
+          units: 'RUB'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.answer.bills[*].total_sum'
+              error_handler: CUSTOM_VALUE
+              error_handler_params: '[0]'
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var arr = JSON.parse(value);
+                  var sum = 0;
+                  for (var i = 0; i < arr.length; i++) {
+                    sum += parseFloat(arr[i]) || 0;
+                  }
+                  return sum;
+          master_item:
+            key: rr.api.bills.unpaid
+          description: 'Сумма неоплаченных счетов'
+          tags:
+            - tag: scope
+              value: billing
         - uuid: d1ee1ea7fa794d19b470f057904acff6
           name: rr-api-status
           type: DEPENDENT
