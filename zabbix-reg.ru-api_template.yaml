@@ -8,10 +8,17 @@ zabbix_export:
     - uuid: 7480bcc549af46da9917df244cd75b5f
       template: REG.RU
       name: REG.RU
-      description: 'Template for monitoring REG.RU API: services expiration, balance, unpaid bills. Auto-discovery of all service types. itforprof.com by Konstantin Tyutyunnik'
+      description: |
+        Template for monitoring REG.RU API: services expiration, balance, unpaid bills.
+        Auto-discovery of all service types.
+
+        Author:  Konstantin Tyutyunnik / Константин Тютюнник
+        Site:    https://itforprof.com
+        Repo:    https://github.com/IT-for-Prof/zabbix-reg.ru-api
+        License: MIT (c) 2025-2026 Konstantin Tyutyunnik
       vendor:
         name: itforprof.com
-        version: 2.1.2
+        version: 2.2.0
       groups:
         - name: REG.RU
       items:
@@ -41,6 +48,9 @@ zabbix_export:
               event_name: 'REG.RU: Нет данных от API service/get_list более 3 часов'
               priority: AVERAGE
               description: 'API service/get_list не отвечает или нет данных'
+              dependencies:
+                - name: 'REG.RU: No data from balance API'
+                  expression: 'nodata(/REG.RU/rr-api-user-get_balance,3h)=1'
         - uuid: b31b53bec4054351a4c2b51aac25eb0e
           name: 'REG.RU: Unpaid Bills Raw'
           type: HTTP_AGENT
@@ -67,6 +77,9 @@ zabbix_export:
               event_name: 'REG.RU: Нет данных от API bill/get_not_payed более 3 часов'
               priority: AVERAGE
               description: 'API bill/get_not_payed не отвечает или нет данных'
+              dependencies:
+                - name: 'REG.RU: No data from balance API'
+                  expression: 'nodata(/REG.RU/rr-api-user-get_balance,3h)=1'
         - uuid: 8d72d6b9bfc64ab0949cac32b561418e
           name: 'REG.RU: Unpaid Bills Count'
           type: DEPENDENT
@@ -93,7 +106,7 @@ zabbix_export:
             - uuid: 4346620329964adaac0f96c5d992e754
               expression: 'last(/REG.RU/rr.bills.unpaid.count)>0'
               name: 'REG.RU: Unpaid bills'
-              event_name: 'REG.RU: {ITEM.LASTVALUE} неоплаченных счетов'
+              event_name: 'REG.RU: {ITEM.VALUE} неоплаченных счетов'
               priority: WARNING
               description: 'Есть неоплаченные счета в аккаунте REG.RU'
         - uuid: ea40b781c9ef4af38fb77c146b521182
@@ -459,8 +472,8 @@ zabbix_export:
                   value: expiration
             - uuid: e73c1927af604e37bb1ca463ab39492d
               expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>=0 and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<={$RR_EXPIRE_HIGH}'
-              name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expires in {ITEM.LASTVALUE1}'
-              event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} истекает через {ITEM.LASTVALUE} дней (дата: {#EXPIRE_DATE})'
+              name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expires in <={$RR_EXPIRE_HIGH} days'
+              event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} истекает через {ITEM.VALUE} дней (дата: {#EXPIRE_DATE})'
               priority: HIGH
               description: 'Услуга {#SERVICE_NAME} ({#SERVICE_TYPE}) истекает менее чем через {$RR_EXPIRE_HIGH} дней'
               dependencies:
@@ -471,24 +484,24 @@ zabbix_export:
                   value: expiration
             - uuid: 8fcaa357804d46feb414781d8b5488ea
               expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>{$RR_EXPIRE_HIGH} and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<={$RR_EXPIRE_WARNING}'
-              name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expires in {ITEM.LASTVALUE1}'
-              event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} истекает через {ITEM.LASTVALUE} дней (дата: {#EXPIRE_DATE})'
+              name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expires in <={$RR_EXPIRE_WARNING} days'
+              event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} истекает через {ITEM.VALUE} дней (дата: {#EXPIRE_DATE})'
               priority: WARNING
               description: 'Услуга {#SERVICE_NAME} ({#SERVICE_TYPE}) истекает менее чем через {$RR_EXPIRE_WARNING} дней'
               dependencies:
-                - name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expires in {ITEM.LASTVALUE1}'
+                - name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expires in <={$RR_EXPIRE_HIGH} days'
                   expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>=0 and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<={$RR_EXPIRE_HIGH}'
               tags:
                 - tag: scope
                   value: expiration
             - uuid: f350d56bc64e40dba1e8b2f97d0a8892
               expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>{$RR_EXPIRE_WARNING} and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<={$RR_EXPIRE_INFO}'
-              name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expires in {ITEM.LASTVALUE1}'
-              event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} истекает через {ITEM.LASTVALUE} дней (дата: {#EXPIRE_DATE})'
+              name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expires in <={$RR_EXPIRE_INFO} days'
+              event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} истекает через {ITEM.VALUE} дней (дата: {#EXPIRE_DATE})'
               priority: INFO
               description: 'Услуга {#SERVICE_NAME} ({#SERVICE_TYPE}) истекает менее чем через {$RR_EXPIRE_INFO} дней'
               dependencies:
-                - name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expires in {ITEM.LASTVALUE1}'
+                - name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expires in <={$RR_EXPIRE_WARNING} days'
                   expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>{$RR_EXPIRE_HIGH} and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<={$RR_EXPIRE_WARNING}'
               tags:
                 - tag: scope
@@ -627,6 +640,8 @@ zabbix_export:
                         host: REG.RU
                         name: 'REG.RU: Funds'
       tags:
+        - tag: class
+          value: registrar
         - tag: scope
           value: finance
         - tag: service

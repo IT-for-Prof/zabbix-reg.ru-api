@@ -9,10 +9,17 @@ zabbix_export:
     - uuid: 78e03b0892244620907d1200d08daa13
       template: 'REG.RU CLOUD'
       name: 'REG.RU CLOUD'
-      description: 'Template for monitoring REG.RU CloudVPS: balance, VPS servers, snapshots, IPs, VPCs. Auto-discovery of all resources. API v1. itforprof.com by Konstantin Tyutyunnik'
+      description: |
+        Template for monitoring REG.RU CloudVPS: balance, VPS servers, snapshots, IPs, VPCs.
+        Auto-discovery of all resources. API v1.
+
+        Author:  Konstantin Tyutyunnik / Константин Тютюнник
+        Site:    https://itforprof.com
+        Repo:    https://github.com/IT-for-Prof/zabbix-reg.ru-api
+        License: MIT (c) 2025-2026 Konstantin Tyutyunnik
       vendor:
         name: itforprof.com
-        version: 1.4.0
+        version: 1.5.0
       groups:
         - name: REG.RU
       items:
@@ -77,6 +84,9 @@ zabbix_export:
               event_name: 'REG.RU CLOUD: Нет данных от API reglets более 3 часов'
               priority: AVERAGE
               description: 'API reglets не отвечает или нет данных'
+              dependencies:
+                - name: 'RRC: No data from balance API'
+                  expression: 'nodata(/REG.RU CLOUD/rrc-api-balance-data,3h)=1'
         - uuid: 678b644b369c472c82d3e41406067b86
           name: 'RRC: API Snapshots Raw'
           type: HTTP_AGENT
@@ -106,6 +116,9 @@ zabbix_export:
               event_name: 'REG.RU CLOUD: Нет данных от API snapshots более 3 часов'
               priority: AVERAGE
               description: 'API snapshots не отвечает или нет данных'
+              dependencies:
+                - name: 'RRC: No data from balance API'
+                  expression: 'nodata(/REG.RU CLOUD/rrc-api-balance-data,3h)=1'
         - uuid: 9ad24f3ba1c34ef9986d0a5fc5d84625
           name: 'RRC: API IPs Raw'
           type: HTTP_AGENT
@@ -135,6 +148,9 @@ zabbix_export:
               event_name: 'REG.RU CLOUD: Нет данных от API IPs более 3 часов'
               priority: AVERAGE
               description: 'API IPs не отвечает или нет данных'
+              dependencies:
+                - name: 'RRC: No data from balance API'
+                  expression: 'nodata(/REG.RU CLOUD/rrc-api-balance-data,3h)=1'
         - uuid: ca9ac63f433149d19f94dbd448975934
           name: 'RRC: API VPCs Raw'
           type: HTTP_AGENT
@@ -164,6 +180,9 @@ zabbix_export:
               event_name: 'REG.RU CLOUD: Нет данных от API VPCs более 3 часов'
               priority: AVERAGE
               description: 'API VPCs не отвечает или нет данных'
+              dependencies:
+                - name: 'RRC: No data from balance API'
+                  expression: 'nodata(/REG.RU CLOUD/rrc-api-balance-data,3h)=1'
         # ============================================
         # BALANCE DEPENDENT ITEMS
         # ============================================
@@ -192,7 +211,7 @@ zabbix_export:
             - uuid: a392c4b108b2406a83d879396f431af1
               expression: 'last(/REG.RU CLOUD/rrc.balance)<{$RRC_BALANCE_WARNING}'
               name: 'RRC: Low balance (warning)'
-              event_name: 'REG.RU CLOUD: Баланс {ITEM.LASTVALUE} меньше {$RRC_BALANCE_WARNING} RUB'
+              event_name: 'REG.RU CLOUD: Баланс {ITEM.VALUE} меньше {$RRC_BALANCE_WARNING} RUB'
               priority: WARNING
               manual_close: 'YES'
               dependencies:
@@ -201,7 +220,7 @@ zabbix_export:
             - uuid: 719862a095024d48897ae79ff9f80478
               expression: 'last(/REG.RU CLOUD/rrc.balance)<{$RRC_BALANCE_HIGH}'
               name: 'RRC: Low balance (high)'
-              event_name: 'REG.RU CLOUD: Баланс {ITEM.LASTVALUE} меньше {$RRC_BALANCE_HIGH} RUB'
+              event_name: 'REG.RU CLOUD: Баланс {ITEM.VALUE} меньше {$RRC_BALANCE_HIGH} RUB'
               priority: HIGH
               dependencies:
                 - name: 'RRC: Balance is zero'
@@ -236,7 +255,7 @@ zabbix_export:
             - uuid: 2505b6936b6949458e38d989c5f511bb
               expression: 'last(/REG.RU CLOUD/rrc.days_left)<{$RRC_DAYSLEFT_WARNING}'
               name: 'RRC: Days left warning'
-              event_name: 'REG.RU CLOUD: Осталось {ITEM.LASTVALUE} дней (меньше {$RRC_DAYSLEFT_WARNING})'
+              event_name: 'REG.RU CLOUD: Осталось {ITEM.VALUE} дней (меньше {$RRC_DAYSLEFT_WARNING})'
               priority: WARNING
               manual_close: 'YES'
               dependencies:
@@ -245,7 +264,7 @@ zabbix_export:
             - uuid: 6eb28b9364b849d3918f59c12fdeb540
               expression: 'last(/REG.RU CLOUD/rrc.days_left)<{$RRC_DAYSLEFT_HIGH}'
               name: 'RRC: Days left critical'
-              event_name: 'REG.RU CLOUD: Осталось {ITEM.LASTVALUE} дней (меньше {$RRC_DAYSLEFT_HIGH})'
+              event_name: 'REG.RU CLOUD: Осталось {ITEM.VALUE} дней (меньше {$RRC_DAYSLEFT_HIGH})'
               priority: HIGH
               manual_close: 'YES'
               dependencies:
@@ -561,7 +580,7 @@ zabbix_export:
             - uuid: cd120e5937b649f29dbe88f469441d43
               expression: 'last(/REG.RU CLOUD/rrc.snapshots.count)>{$RRC_SNAPSHOTS_MAX}'
               name: 'RRC: Too many snapshots'
-              event_name: 'REG.RU CLOUD: Слишком много снапшотов ({ITEM.LASTVALUE} > {$RRC_SNAPSHOTS_MAX})'
+              event_name: 'REG.RU CLOUD: Слишком много снапшотов ({ITEM.VALUE} > {$RRC_SNAPSHOTS_MAX})'
               priority: WARNING
               description: 'Количество снапшотов превышает пороговое значение'
               manual_close: 'YES'
@@ -734,7 +753,7 @@ zabbix_export:
             - uuid: c6b621295c3c414097d4a162048038be
               expression: 'find(/REG.RU CLOUD/rrc.api.status,,"regexp","^error")=1 and find(/REG.RU CLOUD/rrc.api.status,#2,"regexp","^error")=1 and find(/REG.RU CLOUD/rrc.api.status,#3,"regexp","^error")=1'
               name: 'RRC: API errors (3 consecutive)'
-              event_name: 'REG.RU CLOUD: API возвращает ошибки 3 раза подряд: {ITEM.LASTVALUE}'
+              event_name: 'REG.RU CLOUD: API возвращает ошибки 3 раза подряд: {ITEM.VALUE}'
               priority: HIGH
               description: 'CloudVPS API возвращает ошибки при последних 3 запросах'
       # ============================================
@@ -1206,6 +1225,11 @@ zabbix_export:
                     - '$.reglets[?(@.id=={#REGLET_ID})].last_backup_date.first()'
                   error_handler: CUSTOM_VALUE
                   error_handler_params: ''
+                - type: JAVASCRIPT
+                  parameters:
+                    - |
+                      // API отдаёт last_backup_date: null -> JSONPath кладёт строку "null"
+                      return (!value || value === 'null') ? 'никогда' : value;
               master_item:
                 key: rrc-api-reglets
               tags:
@@ -1219,7 +1243,7 @@ zabbix_export:
             - uuid: 48be087a59c94ec3a3db0b8208be64f2
               expression: 'last(/REG.RU CLOUD/rrc.reglet.status[{#REGLET_ID}])<>"active" and last(/REG.RU CLOUD/rrc.reglet.status[{#REGLET_ID}])<>"new"'
               name: 'VPS [{#REGLET_NAME}]: Not active'
-              event_name: 'VPS {#REGLET_NAME} ({#REGLET_IP}): статус {ITEM.LASTVALUE}'
+              event_name: 'VPS {#REGLET_NAME} ({#REGLET_IP}): статус {ITEM.VALUE}'
               priority: HIGH
               description: 'VPS сервер {#REGLET_NAME} не в активном состоянии'
               tags:
@@ -1235,7 +1259,7 @@ zabbix_export:
               tags:
                 - tag: scope
                   value: backup
-            - uuid: 7d2f8e4a1b3c4d6e9f0a2b4c6d8e0f1a
+            - uuid: 3d0cb679abe34c8287981a31635462fd
               expression: 'last(/REG.RU CLOUD/rrc.reglet.backups[{#REGLET_ID}])=0 and change(/REG.RU CLOUD/rrc.reglet.backups[{#REGLET_ID}])=0'
               name: 'VPS [{#REGLET_NAME}]: Backups not configured'
               event_name: 'VPS {#REGLET_NAME}: Бэкапы не настроены'
@@ -1277,7 +1301,7 @@ zabbix_export:
             - uuid: e3d4526ec414406ab9ac409bc0e32309
               expression: 'change(/REG.RU CLOUD/rrc.reglet.ip[{#REGLET_ID}])=1 and length(last(/REG.RU CLOUD/rrc.reglet.ip[{#REGLET_ID}]))>0'
               name: 'VPS [{#REGLET_NAME}]: IP address changed'
-              event_name: 'VPS {#REGLET_NAME}: IP изменился на {ITEM.LASTVALUE}'
+              event_name: 'VPS {#REGLET_NAME}: IP изменился на {ITEM.VALUE}'
               priority: HIGH
               description: 'IP адрес VPS {#REGLET_NAME} изменился. Проверьте DNS записи и firewall правила.'
               manual_close: 'YES'
@@ -1287,7 +1311,7 @@ zabbix_export:
             - uuid: 206ff02af03a4e048ba5e76b223bb65a
               expression: 'length(last(/REG.RU CLOUD/rrc.reglet.blocks[{#REGLET_ID}]))>0'
               name: 'VPS [{#REGLET_NAME}]: Has active blocks'
-              event_name: 'VPS {#REGLET_NAME}: Активны блокировки: {ITEM.LASTVALUE}'
+              event_name: 'VPS {#REGLET_NAME}: Активны блокировки: {ITEM.VALUE}'
               priority: INFO
               description: 'На VPS {#REGLET_NAME} активны блокировки (например, block_smtp). Это может влиять на функциональность.'
               manual_close: 'YES'
@@ -1295,7 +1319,7 @@ zabbix_export:
                 - tag: scope
                   value: security
           graph_prototypes:
-            - uuid: 8105d4c30b78481b89b1430030f5f749
+            - uuid: b05362ac46d2467aa48510b2eae6dc7b
               name: 'VPS [{#REGLET_NAME}]: Resources'
               graph_items:
                 - color: 1A7C11
@@ -1734,6 +1758,8 @@ zabbix_export:
       # TAGS
       # ============================================
       tags:
+        - tag: class
+          value: cloud
         - tag: service
           value: reg.ru-cloud
         - tag: vendor

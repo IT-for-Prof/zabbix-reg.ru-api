@@ -11,8 +11,8 @@
 
 | Шаблон | Версия | API | Назначение |
 |--------|--------|-----|------------|
-| **REG.RU** | 2.1.2 | api.reg.ru | Услуги REG.RU (домены, SSL, хостинг и др.) |
-| **REG.RU CLOUD** | 1.3.0 | api.cloudvps.reg.ru | CloudVPS серверы, баланс, снапшоты |
+| **REG.RU** | 2.2.0 | api.reg.ru | Услуги REG.RU (домены, SSL, хостинг и др.) |
+| **REG.RU CLOUD** | 1.5.0 | api.cloudvps.reg.ru | CloudVPS серверы, баланс, снапшоты |
 
 > **Важно:** Шаблоны используют разные API с разной аутентификацией. Если у вас есть и услуги REG.RU, и CloudVPS — подключайте оба шаблона.
 
@@ -61,6 +61,7 @@ API пароль настраивается в [личном кабинете RE
 | `{$RR_EXCLUDE_TYPES}` | `^(srv_parking)$` | Regex исключения типов |
 | `{$RR_API_TIMEOUT}` | `30s` | Таймаут HTTP запросов |
 | `{$RR_UPDATE_INTERVAL}` | `1h` | Интервал опроса API |
+| `{$RR_OUTPUT_FORMAT}` | `json` | Формат ответа API |
 
 ## Компоненты
 
@@ -68,7 +69,7 @@ API пароль настраивается в [личном кабинете RE
 
 **LLD Discovery:** автообнаружение всех услуг с 4 item prototypes
 
-**Triggers (10):** API ошибки, низкий баланс, неоплаченные счета, nodata
+**Triggers (6):** API ошибки, низкий баланс, неоплаченные счета, nodata
 
 **Trigger Prototypes (4):** истечение услуг (Disaster/High/Warning/Info)
 
@@ -147,7 +148,7 @@ API токен получается в [панели CloudVPS](https://cloudvps.
 
 | Discovery | Item Prototypes | Trigger Prototypes |
 |-----------|-----------------|-------------------|
-| VPS Discovery | 17 (status, vcpus, memory, disk, ip, ipv6, region, prices, backups, image, created, is_blocked, locked, blocks, hostname, last_backup) | 7 |
+| VPS Discovery | 17 (status, vcpus, memory, disk, ip, ipv6, region, prices, backups, image, created, is_blocked, locked, blocks, hostname, last_backup) | 8 |
 | Snapshots Discovery | 2 (size, created) | — |
 | VPC Discovery | 1 (region) | — |
 
@@ -196,8 +197,8 @@ API токен получается в [панели CloudVPS](https://cloudvps.
 ```
 ├── zabbix-reg.ru-api_template.yaml        # Шаблон REG.RU
 ├── zabbix-reg.ru-cloud-api_template.yaml  # Шаблон REG.RU CLOUD
-├── README.md                               # Документация
-└── CONTINUITY.md                           # Changelog
+├── README.md                               # Документация и changelog
+└── LICENSE                                 # MIT
 ```
 
 ## Требования
@@ -209,6 +210,13 @@ API токен получается в [панели CloudVPS](https://cloudvps.
 ## Changelog
 
 ### REG.RU CLOUD
+
+**1.5.0** (2026-06-20)
+- fix: `last_backup_date` показывает «никогда» вместо сырого `null` (нормализация в preprocessing item prototype `rrc.reglet.last_backup`)
+- fix: Все `event_name` переведены с `{ITEM.LASTVALUE}` на `{ITEM.VALUE}` — recovery-сообщения больше не показывают текущее (восстановленное) значение вместо проблемного (напр. «API errors … : success»)
+- feat: **Dependency chain для nodata** — триггеры reglets/snapshots/ips/vpcs зависят от «No data from balance API»; полный отвал API теперь даёт **1 алерт вместо 5**
+- fix: Устранён дубликат UUID graph_prototype (совпадал с шаблоном REG.RU) и хенд-крафтнутый последовательный UUID триггера — заменены на случайные
+- chore: Добавлен identity-блок (Author/Site/Repo/License) в description и тег `class: cloud`
 
 **1.4.0** (2026-01-24)
 - fix: Исправлена логика триггера блокировки VPS
@@ -239,10 +247,14 @@ API токен получается в [панели CloudVPS](https://cloudvps.
 
 ### REG.RU
 
+**2.2.0** (2026-06-20)
+- feat: **Dependency chain для nodata** — триггеры services/bills зависят от «No data from balance API» (полный отвал API = 1 алерт)
+- fix: `event_name` переведены с `{ITEM.LASTVALUE}` на `{ITEM.VALUE}` (корректные recovery-сообщения)
+- fix: Прототипы «Expires» получили уникальные имена (`<=7/14/30 days`) вместо трёх одинаковых
+- chore: Добавлен identity-блок (Author/Site/Repo/License) в description и тег `class: registrar`
+
 **2.1.2**
 - fix: Исправлен *UNKNOWN* в триггерах
-
-См. также [CONTINUITY.md](CONTINUITY.md)
 
 ## Поддержка
 
