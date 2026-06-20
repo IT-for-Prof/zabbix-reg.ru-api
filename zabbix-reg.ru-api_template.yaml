@@ -18,7 +18,7 @@ zabbix_export:
         License: MIT (c) 2025-2026 Konstantin Tyutyunnik
       vendor:
         name: itforprof.com
-        version: 2.2.0
+        version: 2.2.1
       groups:
         - name: REG.RU
       items:
@@ -321,11 +321,14 @@ zabbix_export:
                   var lld = [];
                   for (var i = 0; i < services.length; i++) {
                     var s = services[i];
+                    var ed = s.expiration_date;
+                    // услуги без срока (srv_cloudvps и др.) отдают 0000-00-00 / пусто
+                    var edStr = (!ed || ed === "0000-00-00") ? "бессрочно" : String(ed);
                     lld.push({
                       "{#SERVICE_ID}": String(s.service_id || ""),
                       "{#SERVICE_TYPE}": String(s.servtype || "unknown"),
                       "{#SERVICE_NAME}": String(s.dname || s.subtype || s.service_id || ""),
-                      "{#EXPIRE_DATE}": String(s.expiration_date || ""),
+                      "{#EXPIRE_DATE}": edStr,
                       "{#STATE}": String(s.state || "")
                     });
                   }
@@ -414,6 +417,11 @@ zabbix_export:
                     - '$.answer.services[?(@.service_id=="{#SERVICE_ID}")].expiration_date.first()'
                   error_handler: CUSTOM_VALUE
                   error_handler_params: ''
+                - type: JAVASCRIPT
+                  parameters:
+                    - |
+                      // услуги без срока (srv_cloudvps и др.) отдают 0000-00-00 / пусто
+                      return (!value || value === '0000-00-00') ? 'бессрочно' : value;
               master_item:
                 key: rr.api.services.list
               tags:
