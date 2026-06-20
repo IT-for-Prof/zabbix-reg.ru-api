@@ -18,7 +18,7 @@ zabbix_export:
         License: MIT (c) 2025-2026 Konstantin Tyutyunnik
       vendor:
         name: itforprof.com
-        version: 2.2.1
+        version: 2.2.2
       groups:
         - name: REG.RU
       items:
@@ -181,9 +181,9 @@ zabbix_export:
               value: availability
           triggers:
             - uuid: 907793349e7e4a6785698a4fd38c418b
-              expression: 'last(/REG.RU/rr-api-status)<>"success" and last(/REG.RU/rr-api-status,#2)<>"success" and last(/REG.RU/rr-api-status,#3)<>"success" and last(/REG.RU/rr-api-status,#4)<>"success" and (last(/REG.RU/rr-api-error-text)="" or last(/REG.RU/rr-api-error-text)<>"")'
+              expression: 'last(/REG.RU/rr-api-status)<>"success" and last(/REG.RU/rr-api-status,#2)<>"success" and last(/REG.RU/rr-api-status,#3)<>"success" and last(/REG.RU/rr-api-status,#4)<>"success"'
               name: 'REG.RU: API error (4 consecutive failures)'
-              event_name: 'REG.RU API: {ITEM.VALUE5}'
+              event_name: 'REG.RU API: {?last(//rr-api-error-text)}'
               priority: HIGH
               description: 'API REG.RU возвращает ошибки 4 раза подряд. Текст ошибки показан в event_name.'
         - uuid: d28e92570e86477f835c847e8853cc17
@@ -263,9 +263,9 @@ zabbix_export:
               value: finance
           triggers:
             - uuid: 59c4377debed45ceab7455267203f0b7
-              expression: 'last(/REG.RU/rr-prepay)<{$RR_BALANCE_MINIMAL} and (last(/REG.RU/rr-currency)="" or last(/REG.RU/rr-currency)<>"")'
+              expression: 'last(/REG.RU/rr-prepay)<{$RR_BALANCE_MINIMAL}'
               name: 'REG.RU: Low balance'
-              event_name: 'REG.RU: Низкий баланс: {ITEM.VALUE1} {ITEM.VALUE2} (минимум {$RR_BALANCE_MINIMAL})'
+              event_name: 'REG.RU: Низкий баланс: {ITEM.VALUE1} {?last(//rr-currency)} (минимум {$RR_BALANCE_MINIMAL})'
               priority: HIGH
         - uuid: cbbb6e7c3d6d4a22ba2c2c5ed763ac8b
           name: rr-credit
