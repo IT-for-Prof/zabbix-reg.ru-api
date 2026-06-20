@@ -49,6 +49,9 @@ zabbix_export:
             - tag: scope
               value: raw
           triggers:
+            # DEPENDENCY-CHAIN ROOT: nodata-триггеры reglets/snapshots/ips/vpcs
+            # зависят от этого. НЕ добавляйте сюда dependency — он должен остаться
+            # корнем, чтобы полный отказ API давал 1 алерт, а не 5.
             - uuid: 42dbb2f4d7494780b48e21665c531946
               expression: 'nodata(/REG.RU CLOUD/rrc-api-balance-data,3h)=1'
               name: 'RRC: No data from balance API'

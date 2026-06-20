@@ -235,6 +235,9 @@ zabbix_export:
             - tag: component
               value: balance
           triggers:
+            # DEPENDENCY-CHAIN ROOT: nodata-триггеры services/bills зависят от
+            # этого. НЕ добавляйте сюда dependency — он должен остаться корнем,
+            # чтобы полный отказ API давал 1 алерт, а не 3.
             - uuid: cf13b2361d904f64859914177ef6ff89
               expression: 'nodata(/REG.RU/rr-api-user-get_balance,3h)=1'
               name: 'REG.RU: No data from balance API'
