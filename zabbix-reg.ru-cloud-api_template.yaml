@@ -196,7 +196,7 @@ zabbix_export:
           delay: '0'
           history: 90d
           value_type: FLOAT
-          units: 'RUB'
+          units: '!RUB'
           description: 'Текущий баланс аккаунта CloudVPS'
           preprocessing:
             - type: JSONPATH
@@ -307,7 +307,7 @@ zabbix_export:
           delay: '0'
           history: 90d
           value_type: FLOAT
-          units: 'RUB'
+          units: '!RUB'
           description: 'Ежемесячная стоимость всех ресурсов'
           preprocessing:
             - type: JSONPATH
@@ -328,7 +328,7 @@ zabbix_export:
           delay: '0'
           history: 90d
           value_type: FLOAT
-          units: 'RUB'
+          units: '!RUB'
           description: 'Почасовая стоимость всех ресурсов'
           preprocessing:
             - type: JSONPATH
@@ -349,7 +349,7 @@ zabbix_export:
           delay: '0'
           history: 90d
           value_type: FLOAT
-          units: 'RUB'
+          units: '!RUB'
           description: 'Бонусный баланс'
           preprocessing:
             - type: JSONPATH
@@ -1840,7 +1840,7 @@ zabbix_export:
     - uuid: 37c74cbd7ea74811a6182917d7fcbcbc
       expression: 'last(/REG.RU CLOUD/rrc.balance)<last(/REG.RU CLOUD/rrc.monthly_cost)'
       name: 'RRC: Balance insufficient for month'
-      event_name: 'REG.RU CLOUD: Баланса ({ITEM.VALUE1}) недостаточно для месяца работы ({ITEM.VALUE2})'
+      event_name: 'REG.RU CLOUD: Баланс {ITEM.VALUE1} — не хватает {?round(last(//rrc.monthly_cost)-last(//rrc.balance),2)} RUB до месячной стоимости {ITEM.VALUE2}'
       priority: AVERAGE
       manual_close: 'YES'
       dependencies:
