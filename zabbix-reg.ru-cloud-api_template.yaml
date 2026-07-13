@@ -1840,7 +1840,7 @@ zabbix_export:
     - uuid: 37c74cbd7ea74811a6182917d7fcbcbc
       expression: 'last(/REG.RU CLOUD/rrc.balance)<last(/REG.RU CLOUD/rrc.monthly_cost)'
       name: 'RRC: Balance insufficient for month'
-      event_name: 'REG.RU CLOUD: Баланс {ITEM.VALUE1} — не хватает {?round(last(//rrc.monthly_cost)-last(//rrc.balance),2)} RUB до месячной стоимости {ITEM.VALUE2}'
+      event_name: 'REG.RU CLOUD: Баланс {ITEM.VALUE1} меньше месячной стоимости {ITEM.VALUE2}'
       priority: AVERAGE
       manual_close: 'YES'
       dependencies:
