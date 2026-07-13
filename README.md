@@ -211,6 +211,10 @@ API токен получается в [панели CloudVPS](https://cloudvps.
 
 ### REG.RU CLOUD
 
+**1.5.1** (2026-07-13)
+- fix: Имя low-balance-проблемы читается по-человечески с явной дельтой — `Баланс {ITEM.VALUE1} — не хватает {?round(monthly_cost-balance,2)} RUB до месячной стоимости {ITEM.VALUE2}` вместо схлопывавшихся «(1.66 KRUB) … (1.66 KRUB)»
+- fix: Единица RUB → `!RUB` на `rrc.balance`, `rrc.monthly_cost`, `rrc.hourly_cost`, `rrc.bonus` — префикс `!` отключает авто-масштабирование в KRUB, значения видны в рублях (в именах проблем и на графиках). Проверено на живом Zabbix 7.0
+
 **1.5.0** (2026-06-20)
 - fix: `last_backup_date` показывает «никогда» вместо сырого `null` (нормализация в preprocessing item prototype `rrc.reglet.last_backup`)
 - fix: Все `event_name` переведены с `{ITEM.LASTVALUE}` на `{ITEM.VALUE}` — recovery-сообщения больше не показывают текущее (восстановленное) значение вместо проблемного (напр. «API errors … : success»)
