@@ -231,7 +231,7 @@ zabbix_export:
             - uuid: bf901144d0ba446da8367f2289893626
               expression: 'last(/REG.RU CLOUD/rrc.balance)<=0'
               name: 'RRC: Balance is zero'
-              event_name: 'REG.RU CLOUD: Баланс 0 RUB!'
+              event_name: 'REG.RU CLOUD: Баланс {ITEM.VALUE} RUB!'
               priority: DISASTER
         - uuid: 052a7e27240b47c7b5a6c50e1c968416
           name: 'RRC: Days Left'
