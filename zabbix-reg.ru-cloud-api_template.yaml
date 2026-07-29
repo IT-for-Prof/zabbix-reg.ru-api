@@ -608,9 +608,9 @@ zabbix_export:
                   var snapshots = JSON.parse(value);
                   var total = 0;
                   for (var i = 0; i < snapshots.length; i++) {
-                    total += snapshots[i].size || 0;
+                    total += parseFloat(snapshots[i].size_gigabytes) || 0;
                   }
-                  return total;
+                  return Math.round(total * 1073741824);
           master_item:
             key: rrc-api-snapshots
           tags:
@@ -1392,9 +1392,12 @@ zabbix_export:
               preprocessing:
                 - type: JSONPATH
                   parameters:
-                    - '$.snapshots[?(@.id=={#SNAPSHOT_ID})].size.first()'
+                    - '$.snapshots[?(@.id=={#SNAPSHOT_ID})].size_gigabytes.first()'
                   error_handler: CUSTOM_VALUE
                   error_handler_params: '0'
+                - type: JAVASCRIPT
+                  parameters:
+                    - 'return Math.round(parseFloat(value) * 1073741824);'
               master_item:
                 key: rrc-api-snapshots
               tags:
