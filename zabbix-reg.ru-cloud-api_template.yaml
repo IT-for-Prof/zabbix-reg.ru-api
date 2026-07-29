@@ -227,9 +227,9 @@ zabbix_export:
               priority: HIGH
               dependencies:
                 - name: 'RRC: Balance is zero'
-                  expression: 'last(/REG.RU CLOUD/rrc.balance)=0'
+                  expression: 'last(/REG.RU CLOUD/rrc.balance)<=0'
             - uuid: bf901144d0ba446da8367f2289893626
-              expression: 'last(/REG.RU CLOUD/rrc.balance)=0'
+              expression: 'last(/REG.RU CLOUD/rrc.balance)<=0'
               name: 'RRC: Balance is zero'
               event_name: 'REG.RU CLOUD: Баланс 0 RUB!'
               priority: DISASTER
@@ -1837,15 +1837,6 @@ zabbix_export:
   # GLOBAL TRIGGERS
   # ============================================
   triggers:
-    - uuid: 37c74cbd7ea74811a6182917d7fcbcbc
-      expression: 'last(/REG.RU CLOUD/rrc.balance)<last(/REG.RU CLOUD/rrc.monthly_cost)'
-      name: 'RRC: Balance insufficient for month'
-      event_name: 'REG.RU CLOUD: Баланс {ITEM.VALUE1} меньше месячной стоимости {ITEM.VALUE2}'
-      priority: AVERAGE
-      manual_close: 'YES'
-      dependencies:
-        - name: 'RRC: Days left critical'
-          expression: 'last(/REG.RU CLOUD/rrc.days_left)<{$RRC_DAYSLEFT_HIGH}'
     - uuid: 0245e8d5f6144a0797cdc357cf597d56
       expression: 'last(/REG.RU CLOUD/rrc.reglets.active)<last(/REG.RU CLOUD/rrc.reglets.total)'
       name: 'RRC: Some VPS are not active'
