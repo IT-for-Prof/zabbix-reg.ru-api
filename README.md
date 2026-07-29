@@ -12,7 +12,7 @@
 | Шаблон | Версия | API | Назначение |
 |--------|--------|-----|------------|
 | **REG.RU** | 2.2.2 | api.reg.ru | Услуги REG.RU (домены, SSL, хостинг и др.) |
-| **REG.RU CLOUD** | 1.5.0 | api.cloudvps.reg.ru | CloudVPS серверы, баланс, снапшоты |
+| **REG.RU CLOUD** | 1.5.2 | api.cloudvps.reg.ru | CloudVPS серверы, баланс, снапшоты |
 
 > **Важно:** Шаблоны используют разные API с разной аутентификацией. Если у вас есть и услуги REG.RU, и CloudVPS — подключайте оба шаблона.
 
@@ -152,12 +152,12 @@ API токен получается в [панели CloudVPS](https://cloudvps.
 | Snapshots Discovery | 2 (size, created) | — |
 | VPC Discovery | 1 (region) | — |
 
-### Triggers (17)
+### Triggers (16)
 
 | Категория | Triggers | Severities |
 |-----------|----------|------------|
 | **Nodata** | 5 | AVERAGE |
-| **Balance** | 4 | DISASTER, HIGH, WARNING, AVERAGE |
+| **Balance** | 3 | DISASTER, HIGH, WARNING |
 | **Days Left** | 3 | DISASTER, HIGH, WARNING |
 | **API Status** | 1 | HIGH |
 | **VPS** | 2 | WARNING, INFO |
@@ -210,6 +210,11 @@ API токен получается в [панели CloudVPS](https://cloudvps.
 ## Changelog
 
 ### REG.RU CLOUD
+
+**1.5.2** (2026-07-29)
+- fix: Удалён триггер `Balance insufficient for month` (`balance < monthly_cost`). Для предоплатного почасового аккаунта это условие истинно почти всегда — баланс редко превышает месячную стоимость, — поэтому триггер жил в PROBLEM постоянно. Вместе с порогом `Low balance (warning)` он давал два алерта об одном факте: на живом хосте они сработали с разницей в 23 часа при остатке в 29 дней. Эскалация по балансу остаётся на лестнице 500 → 200 → 0 RUB, по времени — на `days_left` 7 → 3 → 0
+- fix: `Balance is zero` переведён с `=0` на `<=0` — при отрицательном балансе точное равенство не срабатывало и DISASTER не выставлялся вообще. Зависимость `Low balance (high)` обновлена под новое выражение
+- Теперь 16 триггеров (Balance: 3 вместо 4)
 
 **1.5.1** (2026-07-13)
 - fix: Имя low-balance-проблемы читается по-человечески — `Баланс {ITEM.VALUE1} меньше месячной стоимости {ITEM.VALUE2}` вместо схлопывавшихся «(1.66 KRUB) … (1.66 KRUB)» (единица `!RUB` даёт «1629.17 RUB» вместо «1.66 KRUB»)
