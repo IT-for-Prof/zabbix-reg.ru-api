@@ -12,7 +12,7 @@
 | Шаблон | Версия | API | Назначение |
 |--------|--------|-----|------------|
 | **REG.RU** | 2.2.2 | api.reg.ru | Услуги REG.RU (домены, SSL, хостинг и др.) |
-| **REG.RU CLOUD** | 1.5.4 | api.cloudvps.reg.ru | CloudVPS серверы, баланс, снапшоты |
+| **REG.RU CLOUD** | 1.5.5 | api.cloudvps.reg.ru | CloudVPS серверы, баланс, снапшоты |
 
 > **Важно:** Шаблоны используют разные API с разной аутентификацией. Если у вас есть и услуги REG.RU, и CloudVPS — подключайте оба шаблона.
 
@@ -138,9 +138,9 @@ API токен получается в [панели CloudVPS](https://cloudvps.
 | `/v1/ips` | `rrc-api-ips` | 1h |
 | `/v1/vpcs` | `rrc-api-vpcs` | 1h |
 
-### Dependent Items (18)
+### Dependent Items (19)
 
-**Billing (7):** balance, bonus, days_left, hours_left, monthly_cost, hourly_cost, api_status
+**Billing (8):** balance, bonus, funds, days_left, hours_left, monthly_cost, hourly_cost, api_status
 
 **VPS Summary (6):** total, active, stopped, vcpus_total, memory_total, disk_total
 
@@ -212,6 +212,13 @@ API токен получается в [панели CloudVPS](https://cloudvps.
 ## Changelog
 
 ### REG.RU CLOUD
+
+**1.5.5** (2026-07-30)
+- fix: Сумма `balance + bonus` вынесена в отдельный айтем `rrc.funds`, все три триггера рублёвой лестницы переведены на него. В 1.5.4 сумма считалась прямо в выражениях, то есть из двух отдельных айтемов с **разными** `error_handler`: у `rrc.balance` — `DISCARD_VALUE`, у `rrc.bonus` — `CUSTOM_VALUE '0'`. Ответ с кодом 200, но битым телом обнулял бы бонусное слагаемое и мог выдать ложный low-balance или ложный DISASTER на аккаунте, который бонусами и держался; `nodata`-триггер такой случай не ловит, потому что ответ пришёл
+- fix: `event_name` рублёвой лестницы вернулись с expression-макроса на `{ITEM.VALUE}` — теперь в имени события снова работает юнит `!RUB` (без него значение рисковало схлопнуться в «43.89K», ровно та регрессия, которую чинила 1.5.1)
+- fix: JS прототипа `rrc.snapshot.size[]` получил защиту `|| 0`, как у суммирующего айтема — раньше нечисловое значение давало `NaN` и уводило айтем в unsupported вместо нуля
+- Выражение суммы больше не дублируется в шести местах (3 выражения + 3 зависимости); правка порога теперь делается в одном айтеме
+- Теперь 19 зависимых айтемов (Billing: 8)
 
 **1.5.4** (2026-07-30)
 - fix: **Рублёвая лестница считала не те деньги.** `days_left`/`hours_left` API считает от `balance + bonus_balance`, а триггеры `Low balance (warning)`, `Low balance (high)` и `Balance is zero` смотрели только на `balance` — две лестницы мерили разные суммы. На аккаунте с бонусами `Balance is zero` выдал бы DISASTER при сотнях дней реального запаса. Все три выражения переведены на `last(rrc.balance)+last(rrc.bonus)`, `event_name` показывают сумму через expression-макрос. Проверено на примере из документации: `(2154.55 + 41736.72) / 4.31128 = 10180.9` при заявленных `hours_left: 10180`

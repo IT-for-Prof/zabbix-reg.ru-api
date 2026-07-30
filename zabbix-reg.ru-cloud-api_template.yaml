@@ -19,7 +19,7 @@ zabbix_export:
         License: MIT (c) 2025-2026 Konstantin Tyutyunnik
       vendor:
         name: itforprof.com
-        version: 1.5.4
+        version: 1.5.5
       groups:
         - name: REG.RU
       items:
@@ -210,30 +210,60 @@ zabbix_export:
               value: billing
             - tag: scope
               value: finance
+        # Единая величина, по которой ходит вся рублёвая лестница. Считается
+        # из одного разбора одного ответа, поэтому у неё один error_handler:
+        # битое тело не обнуляет часть суммы, а придерживает всё значение.
+        # Отсутствующий bonus_balance даёт 0 внутри JS, а не пустой айтем,
+        # так что триггеры не уходят в UNKNOWN. API так же считает
+        # days_left/hours_left — обе лестницы меряют одни деньги.
+        - uuid: 01af727daa2b497a896c0f24a9d69090
+          name: 'RRC: Available Funds'
+          type: DEPENDENT
+          key: rrc.funds
+          delay: '0'
+          history: 90d
+          value_type: FLOAT
+          units: '!RUB'
+          description: 'Доступные средства: баланс + бонусный баланс'
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - $.balance_data
+              error_handler: DISCARD_VALUE
+            - type: JAVASCRIPT
+              parameters:
+                - |
+                  var d = JSON.parse(value);
+                  return (parseFloat(d.balance) || 0) + (parseFloat(d.bonus_balance) || 0);
+          master_item:
+            key: rrc-api-balance-data
+          tags:
+            - tag: component
+              value: billing
+            - tag: scope
+              value: finance
           triggers:
-            # Пороги считаются от balance + bonus_balance: API так же считает
-            # days_left/hours_left, и обе лестницы должны мерить одни деньги.
             - uuid: a392c4b108b2406a83d879396f431af1
-              expression: 'last(/REG.RU CLOUD/rrc.balance)+last(/REG.RU CLOUD/rrc.bonus)<{$RRC_BALANCE_WARNING}'
+              expression: 'last(/REG.RU CLOUD/rrc.funds)<{$RRC_BALANCE_WARNING}'
               name: 'RRC: Low balance (warning)'
-              event_name: 'REG.RU CLOUD: Средства {?last(//rrc.balance)+last(//rrc.bonus)} меньше {$RRC_BALANCE_WARNING} RUB'
+              event_name: 'REG.RU CLOUD: Средства {ITEM.VALUE} меньше {$RRC_BALANCE_WARNING} RUB'
               priority: WARNING
               manual_close: 'YES'
               dependencies:
                 - name: 'RRC: Low balance (high)'
-                  expression: 'last(/REG.RU CLOUD/rrc.balance)+last(/REG.RU CLOUD/rrc.bonus)<{$RRC_BALANCE_HIGH}'
+                  expression: 'last(/REG.RU CLOUD/rrc.funds)<{$RRC_BALANCE_HIGH}'
             - uuid: 719862a095024d48897ae79ff9f80478
-              expression: 'last(/REG.RU CLOUD/rrc.balance)+last(/REG.RU CLOUD/rrc.bonus)<{$RRC_BALANCE_HIGH}'
+              expression: 'last(/REG.RU CLOUD/rrc.funds)<{$RRC_BALANCE_HIGH}'
               name: 'RRC: Low balance (high)'
-              event_name: 'REG.RU CLOUD: Средства {?last(//rrc.balance)+last(//rrc.bonus)} меньше {$RRC_BALANCE_HIGH} RUB'
+              event_name: 'REG.RU CLOUD: Средства {ITEM.VALUE} меньше {$RRC_BALANCE_HIGH} RUB'
               priority: HIGH
               dependencies:
                 - name: 'RRC: Balance is zero'
-                  expression: 'last(/REG.RU CLOUD/rrc.balance)+last(/REG.RU CLOUD/rrc.bonus)<=0'
+                  expression: 'last(/REG.RU CLOUD/rrc.funds)<=0'
             - uuid: bf901144d0ba446da8367f2289893626
-              expression: 'last(/REG.RU CLOUD/rrc.balance)+last(/REG.RU CLOUD/rrc.bonus)<=0'
+              expression: 'last(/REG.RU CLOUD/rrc.funds)<=0'
               name: 'RRC: Balance is zero'
-              event_name: 'REG.RU CLOUD: Средства исчерпаны: {?last(//rrc.balance)+last(//rrc.bonus)} RUB!'
+              event_name: 'REG.RU CLOUD: Средства исчерпаны: {ITEM.VALUE} RUB!'
               priority: DISASTER
         - uuid: 052a7e27240b47c7b5a6c50e1c968416
           name: 'RRC: Days Left'
@@ -1396,7 +1426,7 @@ zabbix_export:
                   error_handler_params: '0'
                 - type: JAVASCRIPT
                   parameters:
-                    - 'return Math.round(parseFloat(value) * 1073741824);'
+                    - 'return Math.round((parseFloat(value) || 0) * 1073741824);'
               master_item:
                 key: rrc-api-snapshots
               tags:
