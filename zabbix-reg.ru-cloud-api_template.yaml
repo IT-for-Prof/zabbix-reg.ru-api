@@ -19,7 +19,7 @@ zabbix_export:
         License: MIT (c) 2025-2026 Konstantin Tyutyunnik
       vendor:
         name: itforprof.com
-        version: 1.5.0
+        version: 1.5.4
       groups:
         - name: REG.RU
       items:
@@ -1512,10 +1512,10 @@ zabbix_export:
           description: 'Интервал опроса API reglets (статусы VPS)'
         - macro: '{$RRC_BALANCE_WARNING}'
           value: '500'
-          description: 'Порог баланса для предупреждения (WARNING)'
+          description: 'Порог средств (баланс + бонусы) для предупреждения (WARNING)'
         - macro: '{$RRC_BALANCE_HIGH}'
           value: '200'
-          description: 'Порог баланса для критического алерта (HIGH)'
+          description: 'Порог средств (баланс + бонусы) для критического алерта (HIGH)'
         - macro: '{$RRC_DAYSLEFT_WARNING}'
           value: '7'
           description: 'Порог дней для предупреждения'

@@ -101,6 +101,8 @@ API пароль настраивается в [личном кабинете RE
 Configuration → Templates → Import → zabbix-reg.ru-cloud-api_template.yaml
 ```
 
+> **Обновление с версии ≤ 1.5.1.** В 1.5.2 из шаблона удалён триггер `RRC: Balance insufficient for month`, в 1.5.4 — LLD-макрос `{#SNAPSHOT_REGLET}`. Импорт **не удаляет** сущности, которых нет в файле, пока в диалоге импорта не отмечены соответствующие чекбоксы `Delete missing` — для **Triggers** и **Discovery rules**. Без них удалённый триггер продолжит срабатывать на уже привязанных хостах. Учтите, что `Delete missing` уберёт и триггеры, добавленные в шаблон вручную.
+
 ### 2. Настройка макроса хоста
 
 | Макрос | Значение | Описание |
@@ -117,8 +119,8 @@ API токен получается в [панели CloudVPS](https://cloudvps.
 | `{$RRC_API_TIMEOUT}` | `30s` | Таймаут HTTP запросов |
 | `{$RRC_UPDATE_INTERVAL}` | `1h` | Интервал опроса (balance, snapshots, ips, vpcs) |
 | `{$RRC_UPDATE_INTERVAL_REGLETS}` | `5m` | Интервал опроса VPS статусов |
-| `{$RRC_BALANCE_WARNING}` | `500` | Порог баланса — Warning |
-| `{$RRC_BALANCE_HIGH}` | `200` | Порог баланса — High |
+| `{$RRC_BALANCE_WARNING}` | `500` | Порог средств (баланс + бонусы) — Warning |
+| `{$RRC_BALANCE_HIGH}` | `200` | Порог средств (баланс + бонусы) — High |
 | `{$RRC_DAYSLEFT_WARNING}` | `7` | Порог дней — Warning |
 | `{$RRC_DAYSLEFT_HIGH}` | `3` | Порог дней — High |
 | `{$RRC_SNAPSHOTS_MAX}` | `10` | Макс. количество снапшотов |
