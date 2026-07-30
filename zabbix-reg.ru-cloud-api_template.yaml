@@ -211,27 +211,29 @@ zabbix_export:
             - tag: scope
               value: finance
           triggers:
+            # Пороги считаются от balance + bonus_balance: API так же считает
+            # days_left/hours_left, и обе лестницы должны мерить одни деньги.
             - uuid: a392c4b108b2406a83d879396f431af1
-              expression: 'last(/REG.RU CLOUD/rrc.balance)<{$RRC_BALANCE_WARNING}'
+              expression: 'last(/REG.RU CLOUD/rrc.balance)+last(/REG.RU CLOUD/rrc.bonus)<{$RRC_BALANCE_WARNING}'
               name: 'RRC: Low balance (warning)'
-              event_name: 'REG.RU CLOUD: Баланс {ITEM.VALUE} меньше {$RRC_BALANCE_WARNING} RUB'
+              event_name: 'REG.RU CLOUD: Средства {?last(//rrc.balance)+last(//rrc.bonus)} меньше {$RRC_BALANCE_WARNING} RUB'
               priority: WARNING
               manual_close: 'YES'
               dependencies:
                 - name: 'RRC: Low balance (high)'
-                  expression: 'last(/REG.RU CLOUD/rrc.balance)<{$RRC_BALANCE_HIGH}'
+                  expression: 'last(/REG.RU CLOUD/rrc.balance)+last(/REG.RU CLOUD/rrc.bonus)<{$RRC_BALANCE_HIGH}'
             - uuid: 719862a095024d48897ae79ff9f80478
-              expression: 'last(/REG.RU CLOUD/rrc.balance)<{$RRC_BALANCE_HIGH}'
+              expression: 'last(/REG.RU CLOUD/rrc.balance)+last(/REG.RU CLOUD/rrc.bonus)<{$RRC_BALANCE_HIGH}'
               name: 'RRC: Low balance (high)'
-              event_name: 'REG.RU CLOUD: Баланс {ITEM.VALUE} меньше {$RRC_BALANCE_HIGH} RUB'
+              event_name: 'REG.RU CLOUD: Средства {?last(//rrc.balance)+last(//rrc.bonus)} меньше {$RRC_BALANCE_HIGH} RUB'
               priority: HIGH
               dependencies:
                 - name: 'RRC: Balance is zero'
-                  expression: 'last(/REG.RU CLOUD/rrc.balance)<=0'
+                  expression: 'last(/REG.RU CLOUD/rrc.balance)+last(/REG.RU CLOUD/rrc.bonus)<=0'
             - uuid: bf901144d0ba446da8367f2289893626
-              expression: 'last(/REG.RU CLOUD/rrc.balance)<=0'
+              expression: 'last(/REG.RU CLOUD/rrc.balance)+last(/REG.RU CLOUD/rrc.bonus)<=0'
               name: 'RRC: Balance is zero'
-              event_name: 'REG.RU CLOUD: Баланс {ITEM.VALUE} RUB!'
+              event_name: 'REG.RU CLOUD: Средства исчерпаны: {?last(//rrc.balance)+last(//rrc.bonus)} RUB!'
               priority: DISASTER
         - uuid: 052a7e27240b47c7b5a6c50e1c968416
           name: 'RRC: Days Left'
@@ -622,7 +624,7 @@ zabbix_export:
             - uuid: c177361e5aed49c88988ab0fcc8874f6
               expression: 'last(/REG.RU CLOUD/rrc.snapshots.size.total)>{$RRC_SNAPSHOTS_SIZE_MAX}'
               name: 'RRC: Snapshots size exceeded'
-              event_name: 'REG.RU CLOUD: Размер снапшотов превышает лимит'
+              event_name: 'REG.RU CLOUD: Размер снапшотов {ITEM.VALUE} превышает лимит'
               priority: WARNING
               description: 'Общий размер снапшотов превышает {$RRC_SNAPSHOTS_SIZE_MAX} байт'
               manual_close: 'YES'
@@ -1367,8 +1369,7 @@ zabbix_export:
                     var s = snapshots[i];
                     lld.push({
                       "{#SNAPSHOT_ID}": String(s.id || ""),
-                      "{#SNAPSHOT_NAME}": String(s.name || ""),
-                      "{#SNAPSHOT_REGLET}": String(s.reglet_id || "")
+                      "{#SNAPSHOT_NAME}": String(s.name || "")
                     });
                   }
                   return JSON.stringify(lld);
@@ -1377,8 +1378,6 @@ zabbix_export:
               path: '$.["{#SNAPSHOT_ID}"]'
             - lld_macro: '{#SNAPSHOT_NAME}'
               path: '$.["{#SNAPSHOT_NAME}"]'
-            - lld_macro: '{#SNAPSHOT_REGLET}'
-              path: '$.["{#SNAPSHOT_REGLET}"]'
           item_prototypes:
             - uuid: 355d3761576640eca50fee682243ce8f
               name: 'Snapshot [{#SNAPSHOT_NAME}]: Size'
