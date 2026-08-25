@@ -246,7 +246,7 @@ zabbix_export:
             - uuid: a392c4b108b2406a83d879396f431af1
               expression: 'last(/REG.RU CLOUD/rrc.funds)<{$RRC_BALANCE_WARNING}'
               name: 'RRC: Low balance (warning)'
-              event_name: 'REG.RU CLOUD: Средства {ITEM.VALUE} (порог {$RRC_BALANCE_WARNING} RUB), хватит на {?last(//rrc.days_left)} дн.'
+              event_name: 'REG.RU CLOUD: Средства {ITEM.VALUE} (порог {$RRC_BALANCE_WARNING} RUB), расход {{?last(//rrc.monthly_cost)}.fmtnum(0)} ₽/мес'
               opdata: 'Средства {ITEM.LASTVALUE1}'
               url: 'https://cloud.reg.ru/'
               url_name: 'REG.RU Cloud: панель'
@@ -259,11 +259,12 @@ zabbix_export:
             - uuid: 719862a095024d48897ae79ff9f80478
               expression: 'last(/REG.RU CLOUD/rrc.funds)<{$RRC_BALANCE_HIGH}'
               name: 'RRC: Low balance (high)'
-              event_name: 'REG.RU CLOUD: Средства {ITEM.VALUE} (порог {$RRC_BALANCE_HIGH} RUB), хватит на {?last(//rrc.days_left)} дн.'
+              event_name: 'REG.RU CLOUD: Средства {ITEM.VALUE} (порог {$RRC_BALANCE_HIGH} RUB), расход {{?last(//rrc.monthly_cost)}.fmtnum(0)} ₽/мес'
               opdata: 'Средства {ITEM.LASTVALUE1}'
               url: 'https://cloud.reg.ru/'
               url_name: 'REG.RU Cloud: панель'
               priority: HIGH
+              manual_close: 'YES'
               description: 'Остаток средств кабинета reg.ru cloud ниже {$RRC_BALANCE_HIGH} RUB. Пополнить кабинет: https://cloud.reg.ru/ . Плательщик и учётные данные — в описании хоста (DVLS).'
               dependencies:
                 - name: 'RRC: Balance is zero'
@@ -271,11 +272,12 @@ zabbix_export:
             - uuid: bf901144d0ba446da8367f2289893626
               expression: 'last(/REG.RU CLOUD/rrc.funds)<=0'
               name: 'RRC: Balance is zero'
-              event_name: 'REG.RU CLOUD: Средства исчерпаны: {ITEM.VALUE}! Расход {?last(//rrc.monthly_cost)} ₽/мес'
+              event_name: 'REG.RU CLOUD: Средства исчерпаны: {ITEM.VALUE}! Расход {{?last(//rrc.monthly_cost)}.fmtnum(0)} ₽/мес'
               opdata: 'Средства {ITEM.LASTVALUE1}'
               url: 'https://cloud.reg.ru/'
               url_name: 'REG.RU Cloud: панель'
               priority: DISASTER
+              manual_close: 'YES'
               description: 'Средства кабинета reg.ru cloud исчерпаны — VPS будут отключены. Пополнить кабинет: https://cloud.reg.ru/ . Плательщик и учётные данные — в описании хоста (DVLS).'
         - uuid: 052a7e27240b47c7b5a6c50e1c968416
           name: 'RRC: Days Left'
@@ -302,7 +304,7 @@ zabbix_export:
             - uuid: 2505b6936b6949458e38d989c5f511bb
               expression: 'last(/REG.RU CLOUD/rrc.days_left)<{$RRC_DAYSLEFT_WARNING}'
               name: 'RRC: Days left warning'
-              event_name: 'REG.RU CLOUD: Осталось {ITEM.VALUE} (порог {$RRC_DAYSLEFT_WARNING} дн.), средства {?last(//rrc.funds)} ₽, расход {?last(//rrc.monthly_cost)} ₽/мес'
+              event_name: 'REG.RU CLOUD: Осталось {ITEM.VALUE} (порог {$RRC_DAYSLEFT_WARNING} дн.), расход {{?last(//rrc.monthly_cost)}.fmtnum(0)} ₽/мес'
               opdata: 'Осталось {ITEM.LASTVALUE1}'
               url: 'https://cloud.reg.ru/'
               url_name: 'REG.RU Cloud: панель'
@@ -315,7 +317,7 @@ zabbix_export:
             - uuid: 6eb28b9364b849d3918f59c12fdeb540
               expression: 'last(/REG.RU CLOUD/rrc.days_left)<{$RRC_DAYSLEFT_HIGH}'
               name: 'RRC: Days left critical'
-              event_name: 'REG.RU CLOUD: Осталось {ITEM.VALUE} (порог {$RRC_DAYSLEFT_HIGH} дн.), средства {?last(//rrc.funds)} ₽, расход {?last(//rrc.monthly_cost)} ₽/мес'
+              event_name: 'REG.RU CLOUD: Осталось {ITEM.VALUE} (порог {$RRC_DAYSLEFT_HIGH} дн.), расход {{?last(//rrc.monthly_cost)}.fmtnum(0)} ₽/мес'
               opdata: 'Осталось {ITEM.LASTVALUE1}'
               url: 'https://cloud.reg.ru/'
               url_name: 'REG.RU Cloud: панель'
@@ -328,7 +330,7 @@ zabbix_export:
             - uuid: 6983f44c88664fb99d6f05ccc4430311
               expression: 'last(/REG.RU CLOUD/rrc.days_left)=0'
               name: 'RRC: Zero days left'
-              event_name: 'REG.RU CLOUD: Средства кончились — 0 дн. до отключения! Баланс {?last(//rrc.funds)} ₽'
+              event_name: 'REG.RU CLOUD: Средства кончились, услуги отключаются. Расход {{?last(//rrc.monthly_cost)}.fmtnum(0)} ₽/мес'
               opdata: 'Осталось {ITEM.LASTVALUE1}'
               url: 'https://cloud.reg.ru/'
               url_name: 'REG.RU Cloud: панель'
