@@ -838,12 +838,15 @@ zabbix_export:
             - type: JSONPATH
               parameters:
                 - $.reglets
-              error_handler: CUSTOM_VALUE
-              error_handler_params: '[]'
+              error_handler: DISCARD_VALUE
             - type: JAVASCRIPT
               parameters:
                 - |
                   var reglets = JSON.parse(value);
+                  // ошибка API — это не «VPS ноль»: бросаем, чтобы LLD не удалил обнаруженное
+                  if (!Array.isArray(reglets)) {
+                    throw 'ожидался массив (VPS), получено: ' + String(value).substring(0, 200);
+                  }
                   var lld = [];
                   for (var i = 0; i < reglets.length; i++) {
                     var r = reglets[i];
@@ -1414,12 +1417,15 @@ zabbix_export:
             - type: JSONPATH
               parameters:
                 - $.snapshots
-              error_handler: CUSTOM_VALUE
-              error_handler_params: '[]'
+              error_handler: DISCARD_VALUE
             - type: JAVASCRIPT
               parameters:
                 - |
                   var snapshots = JSON.parse(value);
+                  // ошибка API — это не «снапшотов ноль»: бросаем, чтобы LLD не удалил обнаруженное
+                  if (!Array.isArray(snapshots)) {
+                    throw 'ожидался массив (снапшотов), получено: ' + String(value).substring(0, 200);
+                  }
                   var lld = [];
                   for (var i = 0; i < snapshots.length; i++) {
                     var s = snapshots[i];
@@ -1502,7 +1508,10 @@ zabbix_export:
                   var data = JSON.parse(value);
                   // API returns either {"vpcs": [...]} or just [...]
                   var vpcs = data.vpcs || data;
-                  if (!Array.isArray(vpcs)) vpcs = [];
+                  // раньше здесь была тихая замена на [] — она стирала обнаруженные VPC при ошибке API
+                  if (!Array.isArray(vpcs)) {
+                    throw 'ожидался массив (VPC), получено: ' + String(value).substring(0, 200);
+                  }
                   var lld = [];
                   for (var i = 0; i < vpcs.length; i++) {
                     var v = vpcs[i];

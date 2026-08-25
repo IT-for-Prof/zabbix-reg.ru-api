@@ -149,8 +149,7 @@ zabbix_export:
             - type: JSONPATH
               parameters:
                 - '$.answer.services'
-              error_handler: CUSTOM_VALUE
-              error_handler_params: '[]'
+              error_handler: DISCARD_VALUE
             - type: JSONPATH
               parameters:
                 - '$.length()'
@@ -315,12 +314,15 @@ zabbix_export:
             - type: JSONPATH
               parameters:
                 - '$.answer.services'
-              error_handler: CUSTOM_VALUE
-              error_handler_params: '[]'
+              error_handler: DISCARD_VALUE
             - type: JAVASCRIPT
               parameters:
                 - |
                   var services = JSON.parse(value);
+                  // ошибка API — это не «услуг ноль»: бросаем, чтобы LLD не удалил обнаруженное
+                  if (!Array.isArray(services)) {
+                    throw 'ожидался массив (услуг), получено: ' + String(value).substring(0, 200);
+                  }
                   var lld = [];
                   for (var i = 0; i < services.length; i++) {
                     var s = services[i];
