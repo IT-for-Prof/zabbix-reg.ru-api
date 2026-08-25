@@ -443,7 +443,7 @@ zabbix_export:
               delay: '0'
               history: 90d
               value_type: FLOAT
-              units: 'days'
+              units: 'дн.'
               preprocessing:
                 - type: JSONPATH
                   parameters:
@@ -484,7 +484,7 @@ zabbix_export:
             - uuid: e73c1927af604e37bb1ca463ab39492d
               expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>=0 and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<={$RR_EXPIRE_HIGH}'
               name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expires in <={$RR_EXPIRE_HIGH} days'
-              event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} истекает через {ITEM.VALUE} дней (дата: {#EXPIRE_DATE})'
+              event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} истекает через {ITEM.VALUE} (дата: {#EXPIRE_DATE})'
               priority: HIGH
               description: 'Услуга {#SERVICE_NAME} ({#SERVICE_TYPE}) истекает менее чем через {$RR_EXPIRE_HIGH} дней'
               dependencies:
@@ -496,7 +496,7 @@ zabbix_export:
             - uuid: 8fcaa357804d46feb414781d8b5488ea
               expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>{$RR_EXPIRE_HIGH} and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<={$RR_EXPIRE_WARNING}'
               name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expires in <={$RR_EXPIRE_WARNING} days'
-              event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} истекает через {ITEM.VALUE} дней (дата: {#EXPIRE_DATE})'
+              event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} истекает через {ITEM.VALUE} (дата: {#EXPIRE_DATE})'
               priority: WARNING
               description: 'Услуга {#SERVICE_NAME} ({#SERVICE_TYPE}) истекает менее чем через {$RR_EXPIRE_WARNING} дней'
               dependencies:
@@ -508,7 +508,7 @@ zabbix_export:
             - uuid: f350d56bc64e40dba1e8b2f97d0a8892
               expression: 'last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])>{$RR_EXPIRE_WARNING} and last(/REG.RU/rr.service.days_left[{#SERVICE_ID}])<={$RR_EXPIRE_INFO}'
               name: 'Service [{#SERVICE_TYPE}] {#SERVICE_NAME}: Expires in <={$RR_EXPIRE_INFO} days'
-              event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} истекает через {ITEM.VALUE} дней (дата: {#EXPIRE_DATE})'
+              event_name: '{#SERVICE_TYPE}: {#SERVICE_NAME} истекает через {ITEM.VALUE} (дата: {#EXPIRE_DATE})'
               priority: INFO
               description: 'Услуга {#SERVICE_NAME} ({#SERVICE_TYPE}) истекает менее чем через {$RR_EXPIRE_INFO} дней'
               dependencies:
