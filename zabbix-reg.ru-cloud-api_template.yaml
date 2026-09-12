@@ -789,6 +789,10 @@ zabbix_export:
             - type: JAVASCRIPT
               parameters:
                 - |
+                  // Edge/WAF challenge pages are HTML, not API errors in JSON.
+                  if (/^\s*<(?:!doctype\s+html|html)\b/i.test(String(value))) {
+                    return 'error: non-JSON response (HTML)';
+                  }
                   try {
                     var data = JSON.parse(value);
                     // Check if response has 'reglets' key (valid response)
